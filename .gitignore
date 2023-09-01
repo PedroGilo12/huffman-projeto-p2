@@ -1,0 +1,39 @@
+# Arquivos de compilação e executáveis
+*.exe
+*.out
+*.dll
+*.so
+*.dylib
+
+# Arquivos de backup e temporários
+*~
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Arquivos de log
+*.log
+*.logs
+
+# Arquivos de configuração sensíveis
+config.ini
+config.json
+secrets.yml
+
+# Diretórios gerados por IDEs e ferramentas de construção
+.idea/
+.vscode/
+node_modules/
+build/
+dist/
+bin/
+out/
+cmake-build-debug/
+
+# Arquivos específicos para linguagens de programação
+*.class        # Arquivos de classe Java
+*.pyc          # Arquivos compilados Python
+*.o            # Arquivos objeto C/C++
+*.a            # Bibliotecas estáticas C/C++
+
