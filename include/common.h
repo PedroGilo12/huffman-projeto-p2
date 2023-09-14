@@ -54,6 +54,6 @@ int insert_at_beginning(linked_list_t **head, void *data);
  * @param target_char
  * @return
  */
-int exist_in_linked_list(linked_list_t *linked_list, const char* target_char);
+linked_list_t * exist_in_linked_list(linked_list_t *linked_list, const char * target_char);
 
 #endif //GZIP_V1_COMMON_H
