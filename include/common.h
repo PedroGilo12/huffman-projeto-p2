@@ -56,4 +56,15 @@ int insert_at_beginning(linked_list_t **head, void *data);
  */
 linked_list_t * exist_in_linked_list(linked_list_t *linked_list, const char * target_char);
 
+/**
+ * @brief
+ * @param head_ref
+ */
+void sort_linked_list_by_frequency(linked_list_t **head_ref);
+
+/**
+ * @brief
+ * @param linked_list
+ */
+void print_linked_list_byte_frequency(linked_list_t *linked_list);
 #endif //GZIP_V1_COMMON_H
