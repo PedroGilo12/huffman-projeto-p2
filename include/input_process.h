@@ -24,4 +24,6 @@
 int process_input_file_as_byte_frequency(const char* file_name,
                                          linked_list_t** linked_list);
 
+int make_ruffman_tree(linked_list_t **linked_list);
+
 #endif  // GZIP_V1_INPUT_PROCESS_H

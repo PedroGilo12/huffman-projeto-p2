@@ -11,5 +11,9 @@ int main() {
 
     print_linked_list_byte_frequency(linked_list);
 
+    make_ruffman_tree(&linked_list);
+
+    print_linked_list_byte_frequency(linked_list);
+
     return 0;
 }

@@ -53,10 +53,10 @@ linked_list_t *exist_byte_in_linked_list(linked_list_t *linked_list,
     return NULL;
 }
 
-int insert_byte_frequency_at_beginning(linked_list_t **head, void *data)
+int insert_byte_frequency_at_beginning(linked_list_t **head, const char *data, unsigned long frequency)
 {
     /* Aloca memória para um novo nó */
-    linked_list_t *new_node = (linked_list_t *) malloc(sizeof(linked_list_t));
+    linked_list_t *new_node = create_empty_linked_list();
 
     /* Verífica se os ponteiros são válidos */
     if ((new_node == NULL) || (*head == NULL) || (data == NULL)) {
@@ -69,7 +69,7 @@ int insert_byte_frequency_at_beginning(linked_list_t **head, void *data)
 
     /* Configura o dado */
     byte_frequency->byte      = ((char *) data)[0];
-    byte_frequency->frequency = 1;
+    byte_frequency->frequency = frequency;
 
     /* Configura o nó */
     new_node->data = (byte_frequency_t *) byte_frequency;
@@ -164,6 +164,36 @@ int sort_linked_list_by_frequency(linked_list_t **linked_list)
             current = current->next;
         }
     } while (swapped);
+
+    return 0;
+}
+
+bool compare_byte_frequency(byte_frequency_t * data1, byte_frequency_t * data2) {
+    return data1->frequency >= data2->frequency;
+}
+
+int insert_ordered_in_linked_list(linked_list_t **linked_list, linked_list_t *new_node) {
+    if (linked_list == NULL || new_node == NULL) {
+        return ERR_NULL_POINTER; // Retorna um código de erro adequado, como -1, para indicar um erro
+    }
+
+    /* Caso especial: lista vazia ou inserção no início */
+    if ((*linked_list)->data == NULL || compare_byte_frequency(new_node->data, (*linked_list)->data) < 0) {
+        new_node->next = *linked_list;
+        *linked_list = new_node;
+        return 0;
+    }
+
+    linked_list_t *previous = *linked_list;
+    linked_list_t *current = (*linked_list)->next;
+
+    while (current->data != NULL && compare_byte_frequency(new_node->data, current->data) > 0) {
+        previous = current;
+        current = current->next;
+    }
+
+    new_node->next = current;
+    previous->next = new_node;
 
     return 0;
 }

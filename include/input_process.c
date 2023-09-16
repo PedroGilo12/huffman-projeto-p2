@@ -50,7 +50,7 @@ int process_input_file_as_byte_frequency(const char *file_name,
 #endif
         } else {
             /* Se o nó não existir, inserir o nó no começo da lista */
-            insert_byte_frequency_at_beginning(linked_list, byte);
+            insert_byte_frequency_at_beginning(linked_list, byte, 1);
 
 #if DEBUG_MODE
             printf("Caracter inserido %c\n", byte[0]);
@@ -59,5 +59,48 @@ int process_input_file_as_byte_frequency(const char *file_name,
     }
 
     fclose(input_file);
+    return 0;
+}
+
+int make_ruffman_tree(linked_list_t **linked_list) {
+    if (*linked_list == NULL || (*linked_list)->next == NULL) {
+        return ERR_NULL_POINTER;
+    }
+
+    sort_linked_list_by_frequency(linked_list);
+
+    while ((*linked_list)->next->data != NULL) {
+        linked_list_t *current = *linked_list;
+        linked_list_t *next = current->next;
+
+        byte_frequency_t *new_byte_frequency =
+            (byte_frequency_t *)malloc(sizeof(byte_frequency_t));
+
+        if (new_byte_frequency == NULL) {
+            return ERR_NULL_POINTER;
+        }
+
+        unsigned long current_byte_frequency = ((byte_frequency_t *)current->data)->frequency;
+        unsigned long next_byte_frequency = ((byte_frequency_t *)next->data)->frequency;
+
+        new_byte_frequency->byte = '*';
+        new_byte_frequency->frequency = current_byte_frequency + next_byte_frequency;
+
+        linked_list_t *new_node = (linked_list_t *)malloc(sizeof(linked_list_t));
+
+        if (new_node == NULL) {
+            return ERR_NULL_POINTER;
+        }
+
+        new_node->data = (byte_frequency_t *)new_byte_frequency;
+        new_node->left = current;
+        new_node->right = next;
+
+        *linked_list = (*linked_list)->next->next;
+
+        insert_ordered_in_linked_list(linked_list, new_node);
+
+    }
+
     return 0;
 }

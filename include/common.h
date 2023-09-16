@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 /**
  * @brief Se DEBUG_MODE == 1 então retornos de debug estarão habilitados.
@@ -42,7 +43,7 @@ typedef struct byte_frequency {
  * @brief Estrutura genérica para uma lista encadeada com "ruffman nodes".
  */
 typedef struct linked_list {
-    void *data;                /**< Endereço do dado armazenado no nó */
+    byte_frequency_t *data;                /**< Endereço do dado armazenado no nó */
     struct linked_list *next;  /**< Endereço do próximo nó*/
     struct linked_list *right; /**< Endereço do filho à direita do nó */
     struct linked_list *left;  /**< Endereço do filho à esquerda do nó */
@@ -67,7 +68,7 @@ linked_list_t *create_empty_linked_list();
  * @param data [in] endereço do dado a ser inserido na lista.
  * @return 0 em caso de sucesso ou inteiro positivo em caso de falha.
  */
-int insert_byte_frequency_at_beginning(linked_list_t **head, void *data);
+int insert_byte_frequency_at_beginning(linked_list_t **head, const char *data, unsigned long frequency);
 
 /**
  * @brief Checa se já existe um nó na lista que contem aquele dado.
@@ -93,5 +94,13 @@ int sort_linked_list_by_frequency(linked_list_t **linked_list);
  * @param linked_list [in] Lista encadeada a ser retornada no terminal.
  */
 void print_linked_list_byte_frequency(linked_list_t *linked_list);
+
+/**
+ * @brief
+ * @param linked_list
+ * @param new_node
+ * @return
+ */
+int insert_ordered_in_linked_list(linked_list_t **linked_list, linked_list_t *new_node);
 
 #endif  // GZIP_V1_COMMON_H
