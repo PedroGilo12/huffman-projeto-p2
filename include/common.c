@@ -6,7 +6,7 @@
  * @authors Caio Oliveira França dos Anjos (cofa@ic.ufal.br)
  *          Pedro Henrique Balbino Rocha (phbr@ic.ufal.br)
  *          Pedro Henrique Vieira Giló (phvg@ic.ufal.br)
- *          Raniel Ferreira Athayde ()
+ *          Raniel Ferreira Athayde (rfa@ic.ufal.br)
  */
 
 #include <common.h>
@@ -53,13 +53,14 @@ linked_list_t *exist_byte_in_linked_list(linked_list_t *linked_list,
     return NULL;
 }
 
-int insert_byte_frequency_at_beginning(linked_list_t **head, const char *data, unsigned long frequency)
+int insert_byte_frequency_at_beginning(linked_list_t **head, const char *byte,
+                                       unsigned long frequency)
 {
     /* Aloca memória para um novo nó */
     linked_list_t *new_node = create_empty_linked_list();
 
     /* Verífica se os ponteiros são válidos */
-    if ((new_node == NULL) || (*head == NULL) || (data == NULL)) {
+    if ((new_node == NULL) || (*head == NULL) || (byte == NULL)) {
         return ERR_NULL_POINTER;
     }
 
@@ -68,7 +69,7 @@ int insert_byte_frequency_at_beginning(linked_list_t **head, const char *data, u
         (byte_frequency_t *) malloc(sizeof(byte_frequency_t));
 
     /* Configura o dado */
-    byte_frequency->byte      = ((char *) data)[0];
+    byte_frequency->byte      = ((char *) byte)[0];
     byte_frequency->frequency = frequency;
 
     /* Configura o nó */
@@ -89,7 +90,9 @@ static void swap_nodes(linked_list_t **head_ref, linked_list_t *node1,
         return;
     }
 
-    linked_list_t *previous = NULL, *prev2 = NULL, *current = *head_ref;
+    linked_list_t *previous  = NULL;
+    linked_list_t *previous2 = NULL;
+    linked_list_t *current   = *head_ref;
 
     /* Encontra o nó1 na lista */
     while (current != NULL && current != node1) {
@@ -101,8 +104,8 @@ static void swap_nodes(linked_list_t **head_ref, linked_list_t *node1,
 
     /* Encontra o nó2 na lista */
     while (current != NULL && current != node2) {
-        prev2   = current;
-        current = current->next;
+        previous2 = current;
+        current   = current->next;
     }
 
     /* Se algum dos nós não for encontrado, não faça a troca */
@@ -117,8 +120,8 @@ static void swap_nodes(linked_list_t **head_ref, linked_list_t *node1,
         *head_ref = node2;
     }
 
-    if (prev2 != NULL) {
-        prev2->next = node1;
+    if (previous2 != NULL) {
+        previous2->next = node1;
     } else {
         *head_ref = node1;
     }
@@ -168,28 +171,32 @@ int sort_linked_list_by_frequency(linked_list_t **linked_list)
     return 0;
 }
 
-bool compare_byte_frequency(byte_frequency_t * data1, byte_frequency_t * data2) {
-    return data1->frequency >= data2->frequency;
+bool compare_byte_frequency(byte_frequency_t *data1, byte_frequency_t *data2)
+{
+    return data1->frequency > data2->frequency;
 }
 
-int insert_ordered_in_linked_list(linked_list_t **linked_list, linked_list_t *new_node) {
+int insert_ordered_in_linked_list(linked_list_t **linked_list, linked_list_t *new_node)
+{
     if (linked_list == NULL || new_node == NULL) {
-        return ERR_NULL_POINTER; // Retorna um código de erro adequado, como -1, para indicar um erro
+        return ERR_NULL_POINTER;
     }
 
     /* Caso especial: lista vazia ou inserção no início */
-    if ((*linked_list)->data == NULL || compare_byte_frequency(new_node->data, (*linked_list)->data) < 0) {
+    if ((*linked_list)->data == NULL
+        || !compare_byte_frequency(new_node->data, (*linked_list)->data)) {
         new_node->next = *linked_list;
-        *linked_list = new_node;
+        *linked_list   = new_node;
         return 0;
     }
 
     linked_list_t *previous = *linked_list;
-    linked_list_t *current = (*linked_list)->next;
+    linked_list_t *current  = (*linked_list)->next;
 
-    while (current->data != NULL && compare_byte_frequency(new_node->data, current->data) > 0) {
+    while (current->data != NULL
+           && compare_byte_frequency(new_node->data, current->data)) {
         previous = current;
-        current = current->next;
+        current  = current->next;
     }
 
     new_node->next = current;

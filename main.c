@@ -11,9 +11,17 @@ int main() {
 
     print_linked_list_byte_frequency(linked_list);
 
-    make_ruffman_tree(&linked_list);
+    ruffman_tree_t *ruffmanTree = make_ruffman_tree(&linked_list);
 
-    print_linked_list_byte_frequency(linked_list);
+    char * preorder = (char *) malloc(ruffmanTree->tree_size * sizeof(char));
+
+    int index = 0;
+
+    make_dictionary(&ruffmanTree->linkedList,&preorder, &index);
+
+    for(int x = 0; x < index; x++) {
+        printf("%c",preorder[x]);
+    }
 
     return 0;
 }

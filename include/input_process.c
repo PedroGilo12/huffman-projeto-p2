@@ -6,7 +6,7 @@
  * @authors Caio Oliveira França dos Anjos (cofa@ic.ufal.br)
  *          Pedro Henrique Balbino Rocha (phbr@ic.ufal.br)
  *          Pedro Henrique Vieira Giló (phvg@ic.ufal.br)
- *          Raniel Ferreira Athayde ()
+ *          Raniel Ferreira Athayde (rfa@ic.ufal.br)
  */
 
 #include <input_process.h>
@@ -23,7 +23,7 @@ int process_input_file_as_byte_frequency(const char *file_name,
     FILE *input_file = fopen(file_name, "rb");
 
     if (input_file == NULL) {
-        return -1;
+        return ERR_FILE_NOT_FOUND;
     }
 
     while (1) {
@@ -62,44 +62,98 @@ int process_input_file_as_byte_frequency(const char *file_name,
     return 0;
 }
 
-int make_ruffman_tree(linked_list_t **linked_list) {
+
+int count_nodes(linked_list_t *head)
+{
+    int count              = 0;
+    linked_list_t *current = head;
+
+    while (current != NULL) {
+        count++;
+        current = current->next;
+    }
+
+    return count - 1;
+}
+
+ruffman_tree_t *make_ruffman_tree(linked_list_t **linked_list)
+{
+    ruffman_tree_t *ruffman_tree = (ruffman_tree_t *) malloc(sizeof(ruffman_tree_t));
+
+    int tree_size     = count_nodes(*linked_list);
+    char **dictionary = (char **) malloc(tree_size * sizeof(char *));
+
     if (*linked_list == NULL || (*linked_list)->next == NULL) {
-        return ERR_NULL_POINTER;
+        return NULL;
     }
 
     sort_linked_list_by_frequency(linked_list);
 
     while ((*linked_list)->next->data != NULL) {
         linked_list_t *current = *linked_list;
-        linked_list_t *next = current->next;
+        linked_list_t *next    = current->next;
 
         byte_frequency_t *new_byte_frequency =
-            (byte_frequency_t *)malloc(sizeof(byte_frequency_t));
+            (byte_frequency_t *) malloc(sizeof(byte_frequency_t));
 
         if (new_byte_frequency == NULL) {
-            return ERR_NULL_POINTER;
+            return NULL;
         }
 
-        unsigned long current_byte_frequency = ((byte_frequency_t *)current->data)->frequency;
-        unsigned long next_byte_frequency = ((byte_frequency_t *)next->data)->frequency;
+        unsigned long current_byte_frequency =
+            ((byte_frequency_t *) current->data)->frequency;
+        unsigned long next_byte_frequency = ((byte_frequency_t *) next->data)->frequency;
 
-        new_byte_frequency->byte = '*';
+        new_byte_frequency->byte      = '*';
         new_byte_frequency->frequency = current_byte_frequency + next_byte_frequency;
 
-        linked_list_t *new_node = (linked_list_t *)malloc(sizeof(linked_list_t));
+        linked_list_t *new_node = (linked_list_t *) malloc(sizeof(linked_list_t));
 
         if (new_node == NULL) {
-            return ERR_NULL_POINTER;
+            return NULL;
         }
 
-        new_node->data = (byte_frequency_t *)new_byte_frequency;
-        new_node->left = current;
+        new_node->data  = (byte_frequency_t *) new_byte_frequency;
+        new_node->left  = current;
         new_node->right = next;
 
         *linked_list = (*linked_list)->next->next;
 
         insert_ordered_in_linked_list(linked_list, new_node);
+    }
 
+    ruffman_tree->linkedList = *linked_list;
+    ruffman_tree->tree_size  = (tree_size * 2) - 1;
+    ruffman_tree->trash_size = 0;
+    ruffman_tree->dictionary = dictionary;
+
+    return ruffman_tree;
+}
+
+int make_dictionary(linked_list_t **linked_list, char **pre_order_tree, int * index)
+{
+    linked_list_t *current = *linked_list;
+
+    if (linked_list == NULL) {
+        return ERR_NULL_POINTER;
+    }
+
+    char *byte = (char *) malloc(sizeof(char));
+    byte       = &((byte_frequency_t *) ((*linked_list)->data))->byte;
+
+    (*pre_order_tree)[*index] = *byte;
+    (*index) += 1;
+
+    if ((*linked_list)->left != NULL) {
+        make_dictionary(&(*linked_list)->left, pre_order_tree, index);
+    }
+
+    if ((*linked_list)->right != NULL) {
+        make_dictionary(&(*linked_list)->right, pre_order_tree, index);
+    }
+
+    if (((*linked_list)->right != NULL) && ((*linked_list)->left != NULL)) {
+        // TODO: implementar geração do dicionário.
     }
 
     return 0;

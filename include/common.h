@@ -6,7 +6,7 @@
  * @authors Caio Oliveira França dos Anjos (cofa@ic.ufal.br)
  *          Pedro Henrique Balbino Rocha (phbr@ic.ufal.br)
  *          Pedro Henrique Vieira Giló (phvg@ic.ufal.br)
- *          Raniel Ferreira Athayde ()
+ *          Raniel Ferreira Athayde (rfa@ic.ufal.br)
  */
 
 #ifndef GZIP_V1_COMMON_H
@@ -29,6 +29,7 @@
 typedef enum common_err {
     ERR_NONE = 0,     /**< Nenhum erro ocorreu */
     ERR_NULL_POINTER, /**< Ponteiro para NULL não permitido */
+    ERR_FILE_NOT_FOUND,
 } common_err_t;
 
 /**
@@ -53,6 +54,13 @@ typedef struct linked_list {
     void (*func)(struct linked_list);
 } linked_list_t;
 
+typedef struct ruffman_tree {
+    linked_list_t * linkedList;
+    unsigned int tree_size;
+    unsigned int trash_size;
+    char ** dictionary;
+} ruffman_tree_t;
+
 /**
  * @brief Cria uma lista encadeada genérica vazia.
  *
@@ -64,11 +72,11 @@ linked_list_t *create_empty_linked_list();
 /**
  * @brief Insere um nó na cabeça da lista encadeada.
  *
- * @param head [in] endereço da cabeça da lista encadeada.
- * @param data [in] endereço do dado a ser inserido na lista.
+ * @param head [in:out] endereço da cabeça da lista encadeada.
+ * @param byte [in] endereço do dado a ser inserido na lista.
  * @return 0 em caso de sucesso ou inteiro positivo em caso de falha.
  */
-int insert_byte_frequency_at_beginning(linked_list_t **head, const char *data, unsigned long frequency);
+int insert_byte_frequency_at_beginning(linked_list_t **head, const char *byte, unsigned long frequency);
 
 /**
  * @brief Checa se já existe um nó na lista que contem aquele dado.

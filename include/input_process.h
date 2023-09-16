@@ -6,7 +6,7 @@
  * @authors Caio Oliveira França dos Anjos (cofa@ic.ufal.br)
  *          Pedro Henrique Balbino Rocha (phbr@ic.ufal.br)
  *          Pedro Henrique Vieira Giló (phvg@ic.ufal.br)
- *          Raniel Ferreira Athayde ()
+ *          Raniel Ferreira Athayde (rfa@ic.ufal.br)
  */
 
 #ifndef GZIP_V1_INPUT_PROCESS_H
@@ -24,6 +24,19 @@
 int process_input_file_as_byte_frequency(const char* file_name,
                                          linked_list_t** linked_list);
 
-int make_ruffman_tree(linked_list_t **linked_list);
+/**
+ * @brief
+ * @param linked_list
+ * @return
+ */
+ruffman_tree_t * make_ruffman_tree(linked_list_t **linked_list);
+
+/**
+ * @brief
+ * @param linked_list
+ * @param pre_order_tree
+ * @return
+ */
+int make_dictionary(linked_list_t **linked_list, char **pre_order_tree, int * index);
 
 #endif  // GZIP_V1_INPUT_PROCESS_H
