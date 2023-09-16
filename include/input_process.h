@@ -21,15 +21,15 @@
  * @param linked_list [out] Lista encadeada com os bytes presentes no arquivo.
  * @return 0 em caso de sucesso ou inteiro negativo em caso de falha.
  */
-int process_input_file_as_byte_frequency(const char* file_name,
-                                         linked_list_t** linked_list);
+int process_input_file_as_byte_frequency(const char *file_name,
+                                         linked_list_t **linked_list);
 
 /**
  * @brief
  * @param linked_list
  * @return
  */
-ruffman_tree_t * make_ruffman_tree(linked_list_t **linked_list);
+ruffman_tree_t *make_ruffman_tree(linked_list_t **linked_list);
 
 /**
  * @brief
@@ -37,6 +37,7 @@ ruffman_tree_t * make_ruffman_tree(linked_list_t **linked_list);
  * @param pre_order_tree
  * @return
  */
-int make_dictionary(linked_list_t **linked_list, char **pre_order_tree, int * index);
+int make_dictionary(linked_list_t **linked_list, char **pre_order_tree, int *index,
+                    int binary_word);
 
 #endif  // GZIP_V1_INPUT_PROCESS_H

@@ -130,7 +130,7 @@ ruffman_tree_t *make_ruffman_tree(linked_list_t **linked_list)
     return ruffman_tree;
 }
 
-int make_dictionary(linked_list_t **linked_list, char **pre_order_tree, int * index)
+int make_dictionary(linked_list_t **linked_list, char **pre_order_tree, int * index, int binary_word)
 {
     linked_list_t *current = *linked_list;
 
@@ -145,15 +145,16 @@ int make_dictionary(linked_list_t **linked_list, char **pre_order_tree, int * in
     (*index) += 1;
 
     if ((*linked_list)->left != NULL) {
-        make_dictionary(&(*linked_list)->left, pre_order_tree, index);
+        make_dictionary(&(*linked_list)->left, pre_order_tree, index, binary_word << 1 | 0);
     }
 
     if ((*linked_list)->right != NULL) {
-        make_dictionary(&(*linked_list)->right, pre_order_tree, index);
+        make_dictionary(&(*linked_list)->right, pre_order_tree, index, binary_word << 1 | 1);
     }
 
-    if (((*linked_list)->right != NULL) && ((*linked_list)->left != NULL)) {
+    if (((*linked_list)->right == NULL) && ((*linked_list)->left == NULL)) {
         // TODO: implementar geração do dicionário.
+        printf("%c , 0x%x\n", (*linked_list)->data->byte, binary_word);
     }
 
     return 0;

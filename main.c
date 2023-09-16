@@ -16,8 +16,9 @@ int main() {
     char * preorder = (char *) malloc(ruffmanTree->tree_size * sizeof(char));
 
     int index = 0;
+    int initial_binary_word = 0;
 
-    make_dictionary(&ruffmanTree->linkedList,&preorder, &index);
+    make_dictionary(&ruffmanTree->linkedList,&preorder, &index, 0);
 
     for(int x = 0; x < index; x++) {
         printf("%c",preorder[x]);
