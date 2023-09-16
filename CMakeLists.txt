@@ -5,4 +5,4 @@ set(CMAKE_C_STANDARD 11)
 
 include_directories(include)
 
-add_executable(GZIP_V1 main.c)
+add_executable(GZIP_V1 main.c include/common.c include/input_process.c)
