@@ -21,7 +21,7 @@
 /**
  * @brief Se DEBUG_MODE == 1 então retornos de debug estarão habilitados.
  */
-#define DEBUG_MODE 0
+#define DEBUG_MODE 1
 
 /**
  * @brief Enumeração para sinais de erro.
@@ -31,6 +31,7 @@ typedef enum common_err {
     ERR_NULL_POINTER,   /**< Ponteiro para NULL não permitido. */
     ERR_FILE_NOT_FOUND, /**< Arquivo não encontrado. */
     ERR_FILE_WRITE,     /**< Não foi possível escrever no arquivo. */
+    ERR_ALLOC_MEM,      /**< Falha ao alocar memória. */
 } common_err_t;
 
 /**
@@ -42,7 +43,7 @@ typedef struct byte_frequency {
 } byte_frequency_t;
 
 /**
- * @brief Estrutura genérica para uma lista encadeada com "ruffman nodes".
+ * @brief Estrutura genérica para uma lista encadeada com "huffman nodes".
  */
 typedef struct linked_list {
     byte_frequency_t *data;    /**< Endereço do dado armazenado no nó */
@@ -55,13 +56,13 @@ typedef struct linked_list {
     void (*func)(struct linked_list);
 } linked_list_t;
 
-typedef struct ruffman_tree {
+typedef struct huffman_tree {
     linked_list_t * linkedList;
     char * preorder;
     unsigned int tree_size;
     unsigned int trash_size;
     unsigned long ** dictionary;
-} ruffman_tree_t;
+} huffman_tree_t;
 
 /**
  * @brief Cria uma lista encadeada genérica vazia.
@@ -128,5 +129,12 @@ unsigned long find_depth_in_huffman_tree(linked_list_t *linked_list, void *targe
  * @param byte
  */
 void printf_bit_to_bit(char byte);
+
+/**
+ * @brief
+ * @param head
+ * @return
+ */
+int count_nodes(linked_list_t *head);
 
 #endif  // GZIP_V1_COMMON_H

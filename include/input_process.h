@@ -29,7 +29,7 @@ int process_input_file_as_byte_frequency(const char *file_name,
  * @param linked_list
  * @return
  */
-ruffman_tree_t *make_ruffman_tree(linked_list_t **linked_list);
+huffman_tree_t *make_huffman_tree(linked_list_t **linked_list);
 
 /**
  * @brief
@@ -46,10 +46,10 @@ int make_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
  * @brief
  * @param input_file_name
  * @param output_file_name
- * @param ruffman_tree
+ * @param huffman_tree
  * @return
  */
 int compress_file(char *input_file_name, char *output_file_name,
-                  ruffman_tree_t *ruffman_tree);
+                  huffman_tree_t *huffman_tree);
 
 #endif  // GZIP_V1_INPUT_PROCESS_H

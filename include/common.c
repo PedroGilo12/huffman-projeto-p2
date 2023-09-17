@@ -253,6 +253,19 @@ unsigned long find_depth_in_huffman_tree(linked_list_t *linked_list, void *targe
     return (left_depth > right_depth) ? left_depth : right_depth;
 }
 
+int count_nodes(linked_list_t *head)
+{
+    int count              = 0;
+    linked_list_t *current = head;
+
+    while (current != NULL) {
+        count++;
+        current = current->next;
+    }
+
+    return count - 1;
+}
+
 void printf_bit_to_bit(char byte) {
     for (int i = 7; i >= 0; i--) {
         char mask = 1 << i;

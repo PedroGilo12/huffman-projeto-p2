@@ -62,23 +62,10 @@ int process_input_file_as_byte_frequency(const char *file_name,
     return 0;
 }
 
-
-int count_nodes(linked_list_t *head)
+huffman_tree_t *make_huffman_tree(linked_list_t **linked_list)
 {
-    int count              = 0;
-    linked_list_t *current = head;
-
-    while (current != NULL) {
-        count++;
-        current = current->next;
-    }
-
-    return count - 1;
-}
-
-ruffman_tree_t *make_ruffman_tree(linked_list_t **linked_list)
-{
-    ruffman_tree_t *ruffman_tree = (ruffman_tree_t *) malloc(sizeof(ruffman_tree_t));
+    /* Alocam memoria para a arvore de */
+    huffman_tree_t *huffman_tree = (huffman_tree_t *) malloc(sizeof(huffman_tree_t));
 
     int tree_size = count_nodes(*linked_list);
     unsigned long **dictionary =
@@ -123,13 +110,13 @@ ruffman_tree_t *make_ruffman_tree(linked_list_t **linked_list)
         insert_ordered_in_linked_list(linked_list, new_node);
     }
 
-    ruffman_tree->linkedList = *linked_list;
-    ruffman_tree->tree_size  = (tree_size * 2) - 1;
-    ruffman_tree->trash_size = 0;
-    ruffman_tree->dictionary = dictionary;
-    ruffman_tree->preorder   = (char *) malloc(ruffman_tree->tree_size * sizeof(char));
+    huffman_tree->linkedList = *linked_list;
+    huffman_tree->tree_size  = (tree_size * 2) - 1;
+    huffman_tree->trash_size = 0;
+    huffman_tree->dictionary = dictionary;
+    huffman_tree->preorder   = (char *) malloc(huffman_tree->tree_size * sizeof(char));
 
-    return ruffman_tree;
+    return huffman_tree;
 }
 
 int make_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
@@ -161,7 +148,6 @@ int make_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
     }
 
     if (((*linked_list)->right == NULL) && ((*linked_list)->left == NULL)) {
-        // TODO: implementar geração do dicionário.
         unsigned long *dictionary_item =
             (unsigned long *) malloc(2 * sizeof(unsigned long));
 
@@ -181,86 +167,136 @@ int make_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
     return 0;
 }
 
-char *make_header(ruffman_tree_t *ruffman_tree)
+static char *make_header(huffman_tree_t *huffman_tree)
 {
-    char *header = (char *) malloc(((2 + ruffman_tree->tree_size) * sizeof(char)));
+    /* Verificação de ponteiro. */
+    if (huffman_tree == NULL) {
+        return NULL;
+    }
 
+    /* Aloca memória para o cabeçalho. */
+    char *header = (char *) malloc(((2 + huffman_tree->tree_size) * sizeof(char)));
+
+    /* Garante que os bytes estarão zerados para as operações booleanas que se sucedem. */
     header[0] = 0;
     header[1] = 0;
 
-    header[0] = header[0] | (ruffman_tree->trash_size << 5);
-    header[0] = header[0] | (((ruffman_tree->tree_size >> 8) << 3) >> 3);
+    /* Procedimento de gravação dos dois primeiros bytes do cabeçalho. */
+    header[0] = header[0] | (huffman_tree->trash_size << 5);
+    header[0] = header[0] | (huffman_tree->tree_size >> 8);
+    header[1] = header[1] | (huffman_tree->tree_size & 0xF);
+    /* Procedimento de gravação dos dois primeiros bytes do cabeçalho:
+     *
+     * header = 0000 0000 0000 0000
+     *
+     * trash_size = 0000 0xxx
+     * trash_size << 5 = xxx0 0000
+     *
+     *      header[0] = 0000 0000
+     *      OR          xxx0 0000
+     *      =           xxx0 0000
+     *
+     * tree_size = 000h hhhh hhhh hhhh
+     * tree_size >> 8 = 0000 0000 000h hhhh
+     *
+     *      header[0] =           xxx0 0000
+     *      OR          0000 0000 000h hhhh
+     *      =                     xxxh hhhh
+     *
+     * tree_size & 0xF =
+     *                  tree_size = 000h hhhh hhhh hhhh
+     *                  0xF       = 0000 0000 1111 1111
+     *                  =           0000 0000 hhhh hhhh
+     *
+     *      header[1] =           0000 0000
+     *      OR          0000 0000 hhhh hhhh
+     *      =                     hhhh hhhh
+     *
+     *      header = xxxh hhhh hhhh hhhh.
+     */
 
-    header[1] = header[1] | (ruffman_tree->tree_size & 0xF);
 
-    for (int x = 0; x < ruffman_tree->tree_size; x++) {
-        header[2 + x] = ruffman_tree->preorder[x];
+    /* Inclui a árvore em pré ordem no cabeçalho. */
+    for (int x = 0; x < huffman_tree->tree_size; x++) {
+        header[2 + x] = huffman_tree->preorder[x];
     }
 
+#if DEBUG_MODE
     printf("\nHeader: ");
     printf_bit_to_bit(header[0]);
     printf_bit_to_bit(header[1]);
     printf("\n");
 
-    for (int x = 0; x < ruffman_tree->tree_size; x++) {
+    for (int x = 0; x < huffman_tree->tree_size; x++) {
         printf("%c", header[2 + x]);
     }
+#endif
 
     return header;
 }
 
-int insert_header(const char *nome_arquivo, const void *dados, size_t tamanho_dados)
+static int insert_header(const char *input_file_name, const void *data, size_t size_data)
 {
-    FILE *arquivo;
+    /* Definição das variáveis. */
+    FILE *input_file;
     char *buffer = NULL;
-    long tamanho_anterior;
+    long last_size;
 
-    // Abra o arquivo no modo de leitura e gravação binária
-    arquivo = fopen(nome_arquivo, "r+b");
-
-    if (arquivo == NULL) {
-        perror("Erro ao abrir o arquivo");
-        return 1;
+    /* Verífica se os ponteiros são válidos. */
+    if (input_file_name == NULL || data == NULL) {
+        return ERR_NULL_POINTER;
     }
 
-    // Obtenha o tamanho anterior do arquivo
-    fseek(arquivo, 0, SEEK_END);
-    tamanho_anterior = ftell(arquivo);
+    /* Abre o arquvivo no modo de leitura e escrita binária */
+    input_file = fopen(input_file_name, "r+b");
 
-    // Aloque memória para um buffer temporário do tamanho do arquivo anterior
-    buffer = (char *) malloc(tamanho_anterior);
+    /* Verifica se o arquivo é válido */
+    if (input_file == NULL) {
+        return ERR_FILE_NOT_FOUND;
+    }
 
+    /**
+     * Para descobrir o tamanho atual do arquivo precisamos posicionar o ponteiro no
+     * final do arquivo, em seguida retornar a posição atual do ponteiro:
+     */
+
+    fseek(input_file, 0, SEEK_END); /* Posiciona o ponteiro no final do arquivo. */
+    last_size = ftell(input_file);  /* Retorna a posição atual do ponteiro. */
+
+    /* Aloca memória temporariamente para copiar os dados do arquivo. */
+    buffer = (char *) malloc(last_size);
+
+    /* Verifica se foi possível alocar memoria para os dados. */
     if (buffer == NULL) {
-        perror("Erro ao alocar memória");
-        fclose(arquivo);
-        return 1;
+        fclose(input_file);
+        return ERR_ALLOC_MEM;
     }
 
-    // Leitura do conteúdo anterior para o buffer
-    rewind(arquivo);
-    fread(buffer, 1, tamanho_anterior, arquivo);
+    /* Posiciona o ponteiro novamente no ínicio do arquivo. */
+    rewind(input_file);
 
-    // Posicione o ponteiro de arquivo no início do arquivo
-    fseek(arquivo, 0, SEEK_SET);
+    /* Cópia os dados do arquivo. */
+    fread(buffer, 1, last_size, input_file);
 
-    // Escreva os novos dados no início do arquivo
-    fwrite(dados, 1, tamanho_dados, arquivo);
+    /* Posicione o ponteiro novamente no início do arquivo. */
+    rewind(input_file);
 
-    // Escreva o conteúdo anterior de volta após os novos dados
-    fwrite(buffer, 1, tamanho_anterior, arquivo);
+    /* Escreva os novos dados no início do arquivo */
+    fwrite(data, 1, size_data, input_file);
+
+    /* Escreva o conteúdo anterior de volta após os novos dados */
+    fwrite(buffer, 1, last_size, input_file);
 
     free(buffer);
-    fclose(arquivo);
-
-    printf("Dados adicionados no início do arquivo com sucesso.\n");
+    fclose(input_file);
 
     return 0;
 }
 
 int compress_file(char *input_file_name, char *output_file_name,
-                  ruffman_tree_t *ruffman_tree)
+                  huffman_tree_t *huffman_tree)
 {
-    char *header = (char *) malloc(((2 + ruffman_tree->tree_size) * sizeof(char)));
+    char *header = (char *) malloc(((2 + huffman_tree->tree_size) * sizeof(char)));
 
     char output_byte            = 0;
     unsigned int cache_buffer   = 0;
@@ -286,12 +322,12 @@ int compress_file(char *input_file_name, char *output_file_name,
             break;
         }
 
-        for (int scan_dict = 0; scan_dict <= ruffman_tree->tree_size / 2; scan_dict++) {
-            char target_byte = (char) ruffman_tree->dictionary[scan_dict][0];
-            target_eq_byte   = ruffman_tree->dictionary[scan_dict][1];
+        for (int scan_dict = 0; scan_dict <= huffman_tree->tree_size / 2; scan_dict++) {
+            char target_byte = (char) huffman_tree->dictionary[scan_dict][0];
+            target_eq_byte   = huffman_tree->dictionary[scan_dict][1];
             if (target_byte == *input_byte) {
                 unsigned long depth =
-                    find_depth_in_huffman_tree(ruffman_tree->linkedList, &target_byte, 0);
+                    find_depth_in_huffman_tree(huffman_tree->linkedList, &target_byte, 0);
 
                 while (shift_cache + depth >= 8) {
                     unsigned int shift_for_output = (depth - (shift_cache + depth - 8));
@@ -302,9 +338,6 @@ int compress_file(char *input_file_name, char *output_file_name,
 
                     cache_buffer = cache_buffer << shift_for_cache;
                     cache_buffer = cache_buffer | (target_eq_byte >> shift_for_cache);
-
-                    // TODO: Enviar o byte para arquivo;
-
                     size_t write =
                         fwrite(&output_byte, sizeof(output_byte), 1, output_file);
 
@@ -342,10 +375,10 @@ int compress_file(char *input_file_name, char *output_file_name,
         output_byte = output_byte << trash_size;
         output_byte = output_byte | (0xFF >> shift_cache);
 
-        ruffman_tree->trash_size = trash_size;
+        huffman_tree->trash_size = trash_size;
     }
 
-    header = make_header(ruffman_tree);
+    header = make_header(huffman_tree);
     fclose(input_file);
     fclose(output_file);
 
