@@ -1,8 +1,9 @@
-#include <stdio.h>
 #include <common.h>
 #include <input_process.h>
+#include <stdio.h>
 
-int main() {
+int main()
+{
     linked_list_t *linked_list = create_empty_linked_list();
 
     process_input_file_as_byte_frequency("input.txt", &linked_list);
@@ -13,15 +14,17 @@ int main() {
 
     ruffman_tree_t *ruffmanTree = make_ruffman_tree(&linked_list);
 
-    char * preorder = (char *) malloc(ruffmanTree->tree_size * sizeof(char));
+    char *preorder = (char *) malloc(ruffmanTree->tree_size * sizeof(char));
 
-    int index = 0;
+    int index               = 0;
     int initial_binary_word = 0;
 
-    make_dictionary(&ruffmanTree->linkedList,&preorder, &index, 0);
+    make_dictionary(&ruffmanTree->linkedList, &ruffmanTree->dictionary, &preorder, 0);
 
-    for(int x = 0; x < index; x++) {
-        printf("%c",preorder[x]);
+    printf("########\n");
+
+    for (int x = 0; x < 6; x++) {
+        printf("%c, 0x%x\n", (char)ruffmanTree->dictionary[x][0], ruffmanTree->dictionary[x][1]);
     }
 
     return 0;

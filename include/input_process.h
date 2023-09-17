@@ -37,7 +37,9 @@ ruffman_tree_t *make_ruffman_tree(linked_list_t **linked_list);
  * @param pre_order_tree
  * @return
  */
-int make_dictionary(linked_list_t **linked_list, char **pre_order_tree, int *index,
-                    int binary_word);
+int make_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
+                    char **pre_order_tree, unsigned int binary_word);
+
+
 
 #endif  // GZIP_V1_INPUT_PROCESS_H

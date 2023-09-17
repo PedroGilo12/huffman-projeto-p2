@@ -80,8 +80,9 @@ ruffman_tree_t *make_ruffman_tree(linked_list_t **linked_list)
 {
     ruffman_tree_t *ruffman_tree = (ruffman_tree_t *) malloc(sizeof(ruffman_tree_t));
 
-    int tree_size     = count_nodes(*linked_list);
-    char **dictionary = (char **) malloc(tree_size * sizeof(char *));
+    int tree_size = count_nodes(*linked_list);
+    unsigned long **dictionary =
+        (unsigned long **) malloc(tree_size * sizeof(unsigned long *));
 
     if (*linked_list == NULL || (*linked_list)->next == NULL) {
         return NULL;
@@ -130,9 +131,13 @@ ruffman_tree_t *make_ruffman_tree(linked_list_t **linked_list)
     return ruffman_tree;
 }
 
-int make_dictionary(linked_list_t **linked_list, char **pre_order_tree, int * index, int binary_word)
+int make_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
+                    char **pre_order_tree, unsigned int binary_word)
 {
     linked_list_t *current = *linked_list;
+
+    static int dictionary_index = 0;
+    static int pre_order_index  = 0;
 
     if (linked_list == NULL) {
         return ERR_NULL_POINTER;
@@ -141,21 +146,58 @@ int make_dictionary(linked_list_t **linked_list, char **pre_order_tree, int * in
     char *byte = (char *) malloc(sizeof(char));
     byte       = &((byte_frequency_t *) ((*linked_list)->data))->byte;
 
-    (*pre_order_tree)[*index] = *byte;
-    (*index) += 1;
+    (*pre_order_tree)[pre_order_index] = *byte;
+    pre_order_index += 1;
 
     if ((*linked_list)->left != NULL) {
-        make_dictionary(&(*linked_list)->left, pre_order_tree, index, binary_word << 1 | 0);
+        make_dictionary(&(*linked_list)->left, dictionary, pre_order_tree,
+                        binary_word << 1 | 0);
     }
 
     if ((*linked_list)->right != NULL) {
-        make_dictionary(&(*linked_list)->right, pre_order_tree, index, binary_word << 1 | 1);
+        make_dictionary(&(*linked_list)->right, dictionary, pre_order_tree,
+                        binary_word << 1 | 1);
     }
 
     if (((*linked_list)->right == NULL) && ((*linked_list)->left == NULL)) {
         // TODO: implementar geração do dicionário.
-        printf("%c , 0x%x\n", (*linked_list)->data->byte, binary_word);
+        unsigned long *dictionary_item =
+            (unsigned long *) malloc(2 * sizeof(unsigned long));
+
+        dictionary_item[0] = (unsigned long) (*linked_list)->data->byte;
+        dictionary_item[1] = binary_word;
+
+        (*dictionary)[dictionary_index] = dictionary_item;
+
+        dictionary_index++;
+
+        printf("%c , 0x%x, %d\n", (*linked_list)->data->byte, binary_word,
+               dictionary_index);
     }
 
+    return 0;
+}
+
+int compress_file(char *input_file_name, char *output_file_name, ruffman_tree_t *ruffman_tree)
+{
+    /* Ponteiro para o arquivo no modo leitura binária "rb" */
+    FILE *input_file = fopen(input_file_name, "rb");
+
+    if (input_file == NULL) {
+        return ERR_FILE_NOT_FOUND;
+    }
+
+    while (1) {
+        /* Alocação de memória para armazenar provisóriamente o byte lido no arquivo */
+        char *byte = malloc(sizeof(char));
+
+        if (fread(byte, 1, 1, input_file) != 1) {
+            /* Libera a memória reservada para byte antes de sair do loop */
+            free(byte);
+            break;
+        }
+    }
+
+    fclose(input_file);
     return 0;
 }

@@ -58,7 +58,7 @@ typedef struct ruffman_tree {
     linked_list_t * linkedList;
     unsigned int tree_size;
     unsigned int trash_size;
-    char ** dictionary;
+    unsigned long ** dictionary;
 } ruffman_tree_t;
 
 /**
