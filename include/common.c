@@ -216,3 +216,39 @@ void print_linked_list_byte_frequency(linked_list_t *linked_list)
         current = current->next;
     }
 }
+
+bool compare_data_in_byte_frequency(byte_frequency_t *byte_frequency, void *received_data)
+{
+    char data1 = byte_frequency->byte;
+    char data2 = ((byte_frequency_t *) received_data)->byte;
+    return data1 == data2;
+}
+
+/* Função para encontrar a profundidade de um nó na árvore */
+unsigned long find_depth_in_huffman_tree(linked_list_t *linked_list, void *target,
+                                         unsigned long depth)
+{
+    /* Caso base: se a árvore estiver vazia, retorne -1 */
+    if (linked_list == NULL ||linked_list->data == NULL) {
+        return 0;
+    }
+
+    /* Se o nó atual tiver o valor desejado, retorne a profundidade */
+    if (compare_data_in_byte_frequency(linked_list->data, (byte_frequency_t *) target)) {
+        return depth;
+    }
+
+    /* Caso contrário, procure nas subárvores esquerda e direita */
+    unsigned long left_depth =
+        find_depth_in_huffman_tree(linked_list->left, target, depth + 1);
+    unsigned long right_depth =
+        find_depth_in_huffman_tree(linked_list->right, target, depth + 1);
+
+    /* Se o nó não for encontrado em nenhuma subárvore, retorne -1 */
+    if (left_depth == 0 && right_depth == 0) {
+        return 0;
+    }
+
+    /* Retorna a profundidade máxima encontrada nas subárvores */
+    return (left_depth > right_depth) ? left_depth : right_depth;
+}

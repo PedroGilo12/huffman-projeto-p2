@@ -178,7 +178,8 @@ int make_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
     return 0;
 }
 
-int compress_file(char *input_file_name, char *output_file_name, ruffman_tree_t *ruffman_tree)
+int compress_file(char *input_file_name, char *output_file_name,
+                  ruffman_tree_t *ruffman_tree)
 {
     /* Ponteiro para o arquivo no modo leitura binária "rb" */
     FILE *input_file = fopen(input_file_name, "rb");
@@ -189,12 +190,56 @@ int compress_file(char *input_file_name, char *output_file_name, ruffman_tree_t 
 
     while (1) {
         /* Alocação de memória para armazenar provisóriamente o byte lido no arquivo */
-        char *byte = malloc(sizeof(char));
+        char *input_byte          = malloc(sizeof(char));
+        char output_byte          = 0;
+        unsigned int cache_buffer = 0;
+        unsigned int shift_cache  = 0;
 
-        if (fread(byte, 1, 1, input_file) != 1) {
+        if (fread(input_byte, 1, 1, input_file) != 1) {
             /* Libera a memória reservada para byte antes de sair do loop */
-            free(byte);
+            free(input_byte);
             break;
+        }
+
+        for (int scan_dict = 0; scan_dict <= ruffman_tree->tree_size / 2; scan_dict++) {
+            char target_byte            = (char) ruffman_tree->dictionary[scan_dict][0];
+            unsigned int target_eq_byte = ruffman_tree->dictionary[scan_dict][1];
+            if (target_byte == *input_byte) {
+                unsigned long depth =
+                    find_depth_in_huffman_tree(ruffman_tree->linkedList, &target_byte, 0);
+
+
+                if (depth > 8) {
+                    unsigned int shift_to_right = depth - 8;
+                    cache_buffer                = target_eq_byte << depth;
+                    char most_significant_byte =
+                        (char) (target_eq_byte >> shift_to_right);
+                }
+
+                while (shift_cache + depth > 8) {
+                    unsigned int shift_for_output = (depth - (shift_cache + depth - 8));
+                    unsigned int shift_for_cache  = ((shift_cache + depth) - 8);
+
+                    output_byte = output_byte << shift_for_output;
+                    output_byte = output_byte | (target_eq_byte >> shift_for_output);
+
+                    cache_buffer = cache_buffer << shift_for_cache;
+                    cache_buffer = cache_buffer | (target_eq_byte >> shift_for_cache);
+
+                    // TODO: Enviar o byte para arquivo;
+
+                    shift_cache = 0;
+                    depth = depth - shift_for_output;
+                }
+
+                output_byte = output_byte << depth;
+                output_byte = output_byte | target_eq_byte;
+                shift_cache += depth;
+
+                printf("%c == %d\n", (char) ruffman_tree->dictionary[scan_dict][0],
+                       depth);
+                break;
+            }
         }
     }
 

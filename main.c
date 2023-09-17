@@ -27,5 +27,7 @@ int main()
         printf("%c, 0x%x\n", (char)ruffmanTree->dictionary[x][0], ruffmanTree->dictionary[x][1]);
     }
 
+    compress_file("input.txt", NULL, ruffmanTree);
+
     return 0;
 }

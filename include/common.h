@@ -111,4 +111,14 @@ void print_linked_list_byte_frequency(linked_list_t *linked_list);
  */
 int insert_ordered_in_linked_list(linked_list_t **linked_list, linked_list_t *new_node);
 
+/**
+ * @brief
+ * @param linked_list
+ * @param target
+ * @param depth
+ * @return
+ */
+unsigned long find_depth_in_huffman_tree(linked_list_t *linked_list, void *target,
+                                         unsigned long depth);
+
 #endif  // GZIP_V1_COMMON_H
