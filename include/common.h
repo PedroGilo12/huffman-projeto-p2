@@ -27,9 +27,10 @@
  * @brief Enumeração para sinais de erro.
  */
 typedef enum common_err {
-    ERR_NONE = 0,     /**< Nenhum erro ocorreu */
-    ERR_NULL_POINTER, /**< Ponteiro para NULL não permitido */
-    ERR_FILE_NOT_FOUND,
+    ERR_NONE = 0,       /**< Nenhum erro ocorreu. */
+    ERR_NULL_POINTER,   /**< Ponteiro para NULL não permitido. */
+    ERR_FILE_NOT_FOUND, /**< Arquivo não encontrado. */
+    ERR_FILE_WRITE,     /**< Não foi possível escrever no arquivo. */
 } common_err_t;
 
 /**
@@ -44,7 +45,7 @@ typedef struct byte_frequency {
  * @brief Estrutura genérica para uma lista encadeada com "ruffman nodes".
  */
 typedef struct linked_list {
-    byte_frequency_t *data;                /**< Endereço do dado armazenado no nó */
+    byte_frequency_t *data;    /**< Endereço do dado armazenado no nó */
     struct linked_list *next;  /**< Endereço do próximo nó*/
     struct linked_list *right; /**< Endereço do filho à direita do nó */
     struct linked_list *left;  /**< Endereço do filho à esquerda do nó */
@@ -56,6 +57,7 @@ typedef struct linked_list {
 
 typedef struct ruffman_tree {
     linked_list_t * linkedList;
+    char * preorder;
     unsigned int tree_size;
     unsigned int trash_size;
     unsigned long ** dictionary;
@@ -120,5 +122,11 @@ int insert_ordered_in_linked_list(linked_list_t **linked_list, linked_list_t *ne
  */
 unsigned long find_depth_in_huffman_tree(linked_list_t *linked_list, void *target,
                                          unsigned long depth);
+
+/**
+ * @brief
+ * @param byte
+ */
+void printf_bit_to_bit(char byte);
 
 #endif  // GZIP_V1_COMMON_H

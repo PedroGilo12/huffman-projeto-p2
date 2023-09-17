@@ -127,6 +127,7 @@ ruffman_tree_t *make_ruffman_tree(linked_list_t **linked_list)
     ruffman_tree->tree_size  = (tree_size * 2) - 1;
     ruffman_tree->trash_size = 0;
     ruffman_tree->dictionary = dictionary;
+    ruffman_tree->preorder   = (char *) malloc(ruffman_tree->tree_size * sizeof(char));
 
     return ruffman_tree;
 }
@@ -171,9 +172,87 @@ int make_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
 
         dictionary_index++;
 
+#if DEBUG_MODE
         printf("%c , 0x%x, %d\n", (*linked_list)->data->byte, binary_word,
                dictionary_index);
+#endif
     }
+
+    return 0;
+}
+
+char *make_header(ruffman_tree_t *ruffman_tree)
+{
+    char *header = (char *) malloc(((2 + ruffman_tree->tree_size) * sizeof(char)));
+
+    header[0] = 0;
+    header[1] = 0;
+
+    header[0] = header[0] | (ruffman_tree->trash_size << 5);
+    header[0] = header[0] | (((ruffman_tree->tree_size >> 8) << 3) >> 3);
+
+    header[1] = header[1] | (ruffman_tree->tree_size & 0xF);
+
+    for (int x = 0; x < ruffman_tree->tree_size; x++) {
+        header[2 + x] = ruffman_tree->preorder[x];
+    }
+
+    printf("\nHeader: ");
+    printf_bit_to_bit(header[0]);
+    printf_bit_to_bit(header[1]);
+    printf("\n");
+
+    for (int x = 0; x < ruffman_tree->tree_size; x++) {
+        printf("%c", header[2 + x]);
+    }
+
+    return header;
+}
+
+int insert_header(const char *nome_arquivo, const void *dados, size_t tamanho_dados)
+{
+    FILE *arquivo;
+    char *buffer = NULL;
+    long tamanho_anterior;
+
+    // Abra o arquivo no modo de leitura e gravação binária
+    arquivo = fopen(nome_arquivo, "r+b");
+
+    if (arquivo == NULL) {
+        perror("Erro ao abrir o arquivo");
+        return 1;
+    }
+
+    // Obtenha o tamanho anterior do arquivo
+    fseek(arquivo, 0, SEEK_END);
+    tamanho_anterior = ftell(arquivo);
+
+    // Aloque memória para um buffer temporário do tamanho do arquivo anterior
+    buffer = (char *) malloc(tamanho_anterior);
+
+    if (buffer == NULL) {
+        perror("Erro ao alocar memória");
+        fclose(arquivo);
+        return 1;
+    }
+
+    // Leitura do conteúdo anterior para o buffer
+    rewind(arquivo);
+    fread(buffer, 1, tamanho_anterior, arquivo);
+
+    // Posicione o ponteiro de arquivo no início do arquivo
+    fseek(arquivo, 0, SEEK_SET);
+
+    // Escreva os novos dados no início do arquivo
+    fwrite(dados, 1, tamanho_dados, arquivo);
+
+    // Escreva o conteúdo anterior de volta após os novos dados
+    fwrite(buffer, 1, tamanho_anterior, arquivo);
+
+    free(buffer);
+    fclose(arquivo);
+
+    printf("Dados adicionados no início do arquivo com sucesso.\n");
 
     return 0;
 }
@@ -181,8 +260,17 @@ int make_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
 int compress_file(char *input_file_name, char *output_file_name,
                   ruffman_tree_t *ruffman_tree)
 {
+    char *header = (char *) malloc(((2 + ruffman_tree->tree_size) * sizeof(char)));
+
+    char output_byte            = 0;
+    unsigned int cache_buffer   = 0;
+    unsigned int shift_cache    = 0;
+    unsigned int target_eq_byte = 0;
+    unsigned int trash_size     = 0;
+
     /* Ponteiro para o arquivo no modo leitura binária "rb" */
-    FILE *input_file = fopen(input_file_name, "rb");
+    FILE *input_file  = fopen(input_file_name, "rb");
+    FILE *output_file = fopen(output_file_name, "wb");
 
     if (input_file == NULL) {
         return ERR_FILE_NOT_FOUND;
@@ -190,10 +278,7 @@ int compress_file(char *input_file_name, char *output_file_name,
 
     while (1) {
         /* Alocação de memória para armazenar provisóriamente o byte lido no arquivo */
-        char *input_byte          = malloc(sizeof(char));
-        char output_byte          = 0;
-        unsigned int cache_buffer = 0;
-        unsigned int shift_cache  = 0;
+        char *input_byte = malloc(sizeof(char));
 
         if (fread(input_byte, 1, 1, input_file) != 1) {
             /* Libera a memória reservada para byte antes de sair do loop */
@@ -202,47 +287,69 @@ int compress_file(char *input_file_name, char *output_file_name,
         }
 
         for (int scan_dict = 0; scan_dict <= ruffman_tree->tree_size / 2; scan_dict++) {
-            char target_byte            = (char) ruffman_tree->dictionary[scan_dict][0];
-            unsigned int target_eq_byte = ruffman_tree->dictionary[scan_dict][1];
+            char target_byte = (char) ruffman_tree->dictionary[scan_dict][0];
+            target_eq_byte   = ruffman_tree->dictionary[scan_dict][1];
             if (target_byte == *input_byte) {
                 unsigned long depth =
                     find_depth_in_huffman_tree(ruffman_tree->linkedList, &target_byte, 0);
 
-
-                if (depth > 8) {
-                    unsigned int shift_to_right = depth - 8;
-                    cache_buffer                = target_eq_byte << depth;
-                    char most_significant_byte =
-                        (char) (target_eq_byte >> shift_to_right);
-                }
-
-                while (shift_cache + depth > 8) {
+                while (shift_cache + depth >= 8) {
                     unsigned int shift_for_output = (depth - (shift_cache + depth - 8));
                     unsigned int shift_for_cache  = ((shift_cache + depth) - 8);
 
                     output_byte = output_byte << shift_for_output;
-                    output_byte = output_byte | (target_eq_byte >> shift_for_output);
+                    output_byte = output_byte | (target_eq_byte >> shift_for_cache);
 
                     cache_buffer = cache_buffer << shift_for_cache;
                     cache_buffer = cache_buffer | (target_eq_byte >> shift_for_cache);
 
                     // TODO: Enviar o byte para arquivo;
 
+                    size_t write =
+                        fwrite(&output_byte, sizeof(output_byte), 1, output_file);
+
+                    if (write != 1) {
+                        fclose(output_file);
+                        return ERR_FILE_WRITE;
+                    }
+
+                    // printf_bit_to_bit(output_byte);
+
                     shift_cache = 0;
-                    depth = depth - shift_for_output;
+                    depth       = depth - shift_for_output;
                 }
 
+#if DEBUG_MODE
+                printf("Pre-shift: ");
+                printf_bit_to_bit(output_byte);
+#endif
                 output_byte = output_byte << depth;
                 output_byte = output_byte | target_eq_byte;
                 shift_cache += depth;
 
-                printf("%c == %d\n", (char) ruffman_tree->dictionary[scan_dict][0],
-                       depth);
+#if DEBUG_MODE
+                printf("shift cache: %d, depth: %lu -> ", shift_cache, depth);
+                printf_bit_to_bit(output_byte);
+                printf("\n");
+#endif
                 break;
             }
         }
     }
 
+    if (shift_cache) {
+        trash_size  = 8 - shift_cache;
+        output_byte = output_byte << trash_size;
+        output_byte = output_byte | (0xFF >> shift_cache);
+
+        ruffman_tree->trash_size = trash_size;
+    }
+
+    header = make_header(ruffman_tree);
     fclose(input_file);
+    fclose(output_file);
+
+    insert_header(output_file_name, header, strlen(header));
+
     return 0;
 }

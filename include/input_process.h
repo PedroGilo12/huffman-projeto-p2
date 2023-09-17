@@ -49,6 +49,7 @@ int make_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
  * @param ruffman_tree
  * @return
  */
-int compress_file(char *input_file_name, char *output_file_name, ruffman_tree_t *ruffman_tree);
+int compress_file(char *input_file_name, char *output_file_name,
+                  ruffman_tree_t *ruffman_tree);
 
 #endif  // GZIP_V1_INPUT_PROCESS_H

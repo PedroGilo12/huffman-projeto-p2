@@ -252,3 +252,12 @@ unsigned long find_depth_in_huffman_tree(linked_list_t *linked_list, void *targe
     /* Retorna a profundidade máxima encontrada nas subárvores */
     return (left_depth > right_depth) ? left_depth : right_depth;
 }
+
+void printf_bit_to_bit(char byte) {
+    for (int i = 7; i >= 0; i--) {
+        char mask = 1 << i;
+        char bit = (byte & mask) ? '1' : '0';
+        printf("%c", bit);
+    }
+    printf(" ");
+}
