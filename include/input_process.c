@@ -11,6 +11,17 @@
 
 #include <input_process.h>
 
+/**
+ * @brief Insere o cabeçalho no início do arquivo.
+ *
+ * @param input_file_name Nome do arquivo.
+ * @param data Cabeçalho.
+ * @param size_data Tamanho do cabeçalho.
+ *
+ * @return 0 em caso de sucesso ou inteiro positivo em caso de falha.
+ */
+static int insert_header(const char *input_file_name, const void *data, size_t size_data);
+
 int process_input_file_as_byte_frequency(const char *file_name,
                                          linked_list_t **linked_list)
 {
@@ -342,16 +353,26 @@ int compress_file(char *input_file_name, char *output_file_name,
 {
     char *header = (char *) malloc(((2 + huffman_tree->tree_size) * sizeof(char)));
 
-    char output_byte            = 0;
-    unsigned int cache_buffer   = 0;
-    unsigned int shift_cache    = 0;
-    unsigned int target_eq_byte = 0;
-    unsigned int trash_size     = 0;
+    /* Byte que será gravado no arquivo. */
+    char output_byte = 0;
 
-    /* Ponteiro para o arquivo no modo leitura binária "rb" */
+    /* Bits que estão aguardando envio. */
+    unsigned int cache_buffer = 0;
+
+    /* Quantidade de bits que foram alocados no byte de saída. */
+    unsigned int shift_cache = 0;
+
+    /* Byte equivalente do dicionário. */
+    unsigned int target_eq_byte = 0;
+
+    /* Tamanho do lixo. */
+    unsigned int trash_size = 0;
+
+    /* Ponteiro para os arquivos de entrada e saída. */
     FILE *input_file  = fopen(input_file_name, "rb");
     FILE *output_file = fopen(output_file_name, "wb");
 
+    /* Verificação se foi possível abrir os arquivos */
     if (input_file == NULL) {
         return ERR_FILE_NOT_FOUND;
     }
@@ -366,25 +387,43 @@ int compress_file(char *input_file_name, char *output_file_name,
             break;
         }
 
+        /* Cada byte do arquivo será comparado com cada byte do dicionário. */
         for (int scan_dict = 0; scan_dict <= huffman_tree->tree_size / 2; scan_dict++) {
+            /* Byte alvo presente no dicionário. */
             char target_byte = (char) huffman_tree->dictionary[scan_dict][0];
-            target_eq_byte   = huffman_tree->dictionary[scan_dict][1];
+
+            /* "Byte" equivalente no dicionário. */
+            target_eq_byte = huffman_tree->dictionary[scan_dict][1];
+
+            /* Se o byte do arquivo for igual ao byte no dicionário. */
             if (target_byte == *input_byte) {
+                /* A profundidade de um nó na árvore indica quantos bits compõem o "byte"
+                 * equivalente. */
                 unsigned long depth =
                     find_depth_in_huffman_tree(huffman_tree->linkedList, &target_byte, 0);
 
+                /* Caso o tamanho da palavra de saída estrapole o tamanho de 1 byte. */
                 while (shift_cache + depth >= 8) {
+                    /* shift_for_output -> quantidade de bits deslocados para a saída.
+                     *
+                     * shift_for_cache -> quantidade de bits deslocados para o cache.
+                     */
                     unsigned int shift_for_output = (depth - (shift_cache + depth - 8));
                     unsigned int shift_for_cache  = ((shift_cache + depth) - 8);
 
+                    /* Desloca os bits para a saída. */
                     output_byte = output_byte << shift_for_output;
                     output_byte = output_byte | (target_eq_byte >> shift_for_cache);
 
+                    /* Desloca os bits para o cache. */
                     cache_buffer = cache_buffer << shift_for_cache;
                     cache_buffer = cache_buffer | (target_eq_byte >> shift_for_cache);
+
+                    /* Escreve o byte no arquivo. */
                     size_t write =
                         fwrite(&output_byte, sizeof(output_byte), 1, output_file);
 
+                    /* Caso não seja possível gravar o byte no arquivo. */
                     if (write != 1) {
                         fclose(output_file);
                         return ERR_FILE_WRITE;
@@ -398,6 +437,8 @@ int compress_file(char *input_file_name, char *output_file_name,
                 printf("Pre-shift: ");
                 printf_bit_by_bit(output_byte);
 #endif
+
+                /* Desloca o bit para a saída. */
                 output_byte = output_byte << depth;
                 output_byte = output_byte | target_eq_byte;
                 shift_cache += depth;
@@ -412,6 +453,7 @@ int compress_file(char *input_file_name, char *output_file_name,
         }
     }
 
+    /* Salva o ultimo byte e calcula o lixo. */
     if (shift_cache) {
         trash_size  = 8 - shift_cache;
         output_byte = output_byte << trash_size;
@@ -420,11 +462,12 @@ int compress_file(char *input_file_name, char *output_file_name,
         huffman_tree->trash_size = trash_size;
     }
 
+    /* Cria o cabeçalho e insere no arquivo. */
     header = make_header(huffman_tree);
+    insert_header(output_file_name, header, strlen(header));
+
     fclose(input_file);
     fclose(output_file);
-
-    insert_header(output_file_name, header, strlen(header));
 
     return 0;
 }
