@@ -14,8 +14,8 @@ int main()
 
     huffman_tree_t *huffman_tree = make_huffman_tree(&linked_list);
 
-    make_dictionary(&huffman_tree->linkedList, &huffman_tree->dictionary,
-                    &huffman_tree->preorder, 0);
+    make_preorder_dictionary(&huffman_tree->linkedList, &huffman_tree->dictionary,
+                             &huffman_tree->preorder, 0);
 
     compress_file("input.txt", "output1.gip", huffman_tree);
 

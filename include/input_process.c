@@ -119,7 +119,7 @@ huffman_tree_t *make_huffman_tree(linked_list_t **linked_list)
     return huffman_tree;
 }
 
-int make_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
+int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
                     char **pre_order_tree, unsigned int binary_word)
 {
     linked_list_t *current = *linked_list;
@@ -137,17 +137,33 @@ int make_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
     (*pre_order_tree)[pre_order_index] = *byte;
     pre_order_index += 1;
 
+    printf("First: %c , 0x%x, %d\n", (*linked_list)->data->byte, binary_word,
+           dictionary_index);
+
     if ((*linked_list)->left != NULL) {
-        make_dictionary(&(*linked_list)->left, dictionary, pre_order_tree,
-                        binary_word << 1 | 0);
+        make_preorder_dictionary(&(*linked_list)->left, dictionary, pre_order_tree,
+                                 binary_word << 1 | 0);
     }
 
     if ((*linked_list)->right != NULL) {
-        make_dictionary(&(*linked_list)->right, dictionary, pre_order_tree,
-                        binary_word << 1 | 1);
+        make_preorder_dictionary(&(*linked_list)->right, dictionary, pre_order_tree,
+                                 binary_word << 1 | 1);
     }
 
     if (((*linked_list)->right == NULL) && ((*linked_list)->left == NULL)) {
+
+        if((*linked_list)->data->byte == '*' || (*linked_list)->data->byte == '\\') {
+            char *new_pre_order_tree = (char *) malloc(sizeof(pre_order_tree) + sizeof(char));
+            new_pre_order_tree = *pre_order_tree;
+
+            new_pre_order_tree[pre_order_index - 1] = '\\';
+            new_pre_order_tree[pre_order_index] = (*linked_list)->data->byte;
+
+            *pre_order_tree = &*new_pre_order_tree;
+
+            pre_order_index++;
+        }
+
         unsigned long *dictionary_item =
             (unsigned long *) malloc(2 * sizeof(unsigned long));
 
@@ -159,7 +175,7 @@ int make_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
         dictionary_index++;
 
 #if DEBUG_MODE
-        printf("%c , 0x%x, %d\n", (*linked_list)->data->byte, binary_word,
+        printf("Second: %c , 0x%x, %d\n", (*linked_list)->data->byte, binary_word,
                dictionary_index);
 #endif
     }
@@ -216,8 +232,15 @@ static char *make_header(huffman_tree_t *huffman_tree)
      */
 
 
-    /* Inclui a árvore em pré ordem no cabeçalho. */
-    for (int x = 0; x < huffman_tree->tree_size; x++) {
+    /* Insere a árvore em pré ordem no cabeçalho. */
+    unsigned long insert_size = huffman_tree->tree_size;
+
+    for (int x = 0; x < insert_size; x++) {
+        /* Verifica se possuí um caracter de scape e não contabiliza-o para gravação. */
+        if(huffman_tree->preorder[x] == '\\') {
+            insert_size += 1;
+        }
+
         header[2 + x] = huffman_tree->preorder[x];
     }
 
@@ -227,7 +250,7 @@ static char *make_header(huffman_tree_t *huffman_tree)
     printf_bit_to_bit(header[1]);
     printf("\n");
 
-    for (int x = 0; x < huffman_tree->tree_size; x++) {
+    for (int x = 0; x < insert_size; x++) {
         printf("%c", header[2 + x]);
     }
 #endif

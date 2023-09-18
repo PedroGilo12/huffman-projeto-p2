@@ -39,7 +39,7 @@ huffman_tree_t *make_huffman_tree(linked_list_t **linked_list);
  * @param binary_word
  * @return
  */
-int make_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
+int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
                     char **pre_order_tree, unsigned int binary_word);
 
 /**
