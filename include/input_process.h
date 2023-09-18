@@ -25,29 +25,29 @@ int process_input_file_as_byte_frequency(const char *file_name,
                                          linked_list_t **linked_list);
 
 /**
- * @brief
- * @param linked_list
- * @return
+ * @brief Cria uma árvore de Huffman a partir de uma lista encadeada.
+ * @param linked_list [in] Lista encadeada.
+ * @return Árvore de Huffman.
  */
 huffman_tree_t *make_huffman_tree(linked_list_t **linked_list);
 
 /**
- * @brief
- * @param linked_list
- * @param dictionary
- * @param pre_order_tree
- * @param binary_word
- * @return
+ * @brief Cria um dicionário e uma string em pré ordem com base na árvore de Huffman.
+ * @param linked_list [in] Lista encadeada da árvore de Huffman.
+ * @param dictionary [out] Dicionário gerado a partir da árvore.
+ * @param pre_order_tree [out] String da árvore em pré ordem.
+ * @param binary_word Inicio do dicionário, padrão: 0;
+ * @return 0 em caso de sucesso ou inteiro positivo em caso de falha.
  */
 int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
                     char **pre_order_tree, unsigned int binary_word);
 
 /**
- * @brief
- * @param input_file_name
- * @param output_file_name
- * @param huffman_tree
- * @return
+ * @brief Comprime um arquivo de entrada com base em uma árvore de Huffman.
+ * @param input_file_name Nome do arquivo de entrada.
+ * @param output_file_name Nome do arquivo de saída.
+ * @param huffman_tree Árvore de Huffman.
+ * @return 0 em caso de sucesso ou inteiro positivo em caso de falha.
  */
 int compress_file(char *input_file_name, char *output_file_name,
                   huffman_tree_t *huffman_tree);

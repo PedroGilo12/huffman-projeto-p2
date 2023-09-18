@@ -107,33 +107,35 @@ int sort_linked_list_by_frequency(linked_list_t **linked_list);
 void print_linked_list_byte_frequency(linked_list_t *linked_list);
 
 /**
- * @brief
- * @param linked_list
- * @param new_node
- * @return
+ * @brief Insere um nó ordenado na lista.
+ *
+ * @param linked_list [in:out] Endereço do ponteiro para a lista encadeada.
+ * @param new_node [in] Novo nó a ser inserido na lista.
+ * @return 0 em caso de sucesso ou inteiro positivo em caso de falha.
  */
 int insert_ordered_in_linked_list(linked_list_t **linked_list, linked_list_t *new_node);
 
 /**
- * @brief
- * @param linked_list
- * @param target
- * @param depth
- * @return
+ * @brief Encontra a profundidade de um nó na árvore de Huffman.
+ *
+ * @param linked_list [in] Ponteiro para a lista encadeada da árvore de Huffman.
+ * @param target [in] Nó desejado.
+ * @param depth Profundidade inicial, default: 0;
+ * @return Profundidade do nó.
  */
 unsigned long find_depth_in_huffman_tree(linked_list_t *linked_list, void *target,
                                          unsigned long depth);
 
 /**
- * @brief
- * @param byte
+ * @brief Escreve no terminal bit a bit de um byte.
+ * @param byte Byte que será escrito no terminal.
  */
-void printf_bit_to_bit(char byte);
+void printf_bit_by_bit(char byte);
 
 /**
- * @brief
- * @param head
- * @return
+ * @brief Conta os nós de uma lista encadeada.
+ * @param head [in] Ponteiro para o começo da lista.
+ * @return Quantidade de nós na lista.
  */
 int count_nodes(linked_list_t *head);
 

@@ -64,23 +64,27 @@ int process_input_file_as_byte_frequency(const char *file_name,
 
 huffman_tree_t *make_huffman_tree(linked_list_t **linked_list)
 {
-    /* Alocam memoria para a arvore de */
+    /* Aloca memoria para a arvore de Huffman */
     huffman_tree_t *huffman_tree = (huffman_tree_t *) malloc(sizeof(huffman_tree_t));
 
     int tree_size = count_nodes(*linked_list);
     unsigned long **dictionary =
         (unsigned long **) malloc(tree_size * sizeof(unsigned long *));
 
+    /* Verificação de ponteiro */
     if (*linked_list == NULL || (*linked_list)->next == NULL) {
         return NULL;
     }
 
+    /* Garante que a lista inicie ordenada. */
     sort_linked_list_by_frequency(linked_list);
 
     while ((*linked_list)->next->data != NULL) {
+        /* Ponteiros para percorrer a lista. */
         linked_list_t *current = *linked_list;
         linked_list_t *next    = current->next;
 
+        /* Aloca memória para o novo dado. */
         byte_frequency_t *new_byte_frequency =
             (byte_frequency_t *) malloc(sizeof(byte_frequency_t));
 
@@ -88,6 +92,7 @@ huffman_tree_t *make_huffman_tree(linked_list_t **linked_list)
             return NULL;
         }
 
+        /* Configuração do novo nó: byte: '*' frequency: +++ */
         unsigned long current_byte_frequency =
             ((byte_frequency_t *) current->data)->frequency;
         unsigned long next_byte_frequency = ((byte_frequency_t *) next->data)->frequency;
@@ -95,21 +100,26 @@ huffman_tree_t *make_huffman_tree(linked_list_t **linked_list)
         new_byte_frequency->byte      = '*';
         new_byte_frequency->frequency = current_byte_frequency + next_byte_frequency;
 
+        /* Aloca memória para o novo nó. */
         linked_list_t *new_node = (linked_list_t *) malloc(sizeof(linked_list_t));
 
         if (new_node == NULL) {
             return NULL;
         }
 
+        /* Configura o novo nó */
         new_node->data  = (byte_frequency_t *) new_byte_frequency;
         new_node->left  = current;
         new_node->right = next;
 
+        /* Desconecta os dois primeiros nós atuais da lista. */
         *linked_list = (*linked_list)->next->next;
 
+        /* Adiciona ordenado o novo nó. */
         insert_ordered_in_linked_list(linked_list, new_node);
     }
 
+    /* Atributos da Huffman Tree. */
     huffman_tree->linkedList = *linked_list;
     huffman_tree->tree_size  = (tree_size * 2) - 1;
     huffman_tree->trash_size = 0;
@@ -120,62 +130,73 @@ huffman_tree_t *make_huffman_tree(linked_list_t **linked_list)
 }
 
 int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
-                    char **pre_order_tree, unsigned int binary_word)
+                             char **pre_order_tree, unsigned int binary_word)
 {
-    linked_list_t *current = *linked_list;
-
+    /* Variáveis estáticas para contabilizar o índice do dicionário e da string em pré
+     * ordem. */
     static int dictionary_index = 0;
     static int pre_order_index  = 0;
 
+    /* Verifica se os ponteiros são válidos. */
     if (linked_list == NULL) {
         return ERR_NULL_POINTER;
     }
 
-    char *byte = (char *) malloc(sizeof(char));
-    byte       = &((byte_frequency_t *) ((*linked_list)->data))->byte;
+    /* Cópia do ponteiro para o byte atual da árvore. */
+    char *byte = &((byte_frequency_t *) ((*linked_list)->data))->byte;
 
+    /* Adiciona o nó à string em pré ordem e soma +1 no indíce. */
     (*pre_order_tree)[pre_order_index] = *byte;
     pre_order_index += 1;
 
-    printf("First: %c , 0x%x, %d\n", (*linked_list)->data->byte, binary_word,
-           dictionary_index);
-
+    /* Preferência para os filhos a esquerda, se não forem NULL. Prosseguir. */
     if ((*linked_list)->left != NULL) {
+        /* Note que "binary_word << 1 | 0":
+         * adiciona 0 ao caminho até a folha.*/
         make_preorder_dictionary(&(*linked_list)->left, dictionary, pre_order_tree,
                                  binary_word << 1 | 0);
     }
 
+    /* Se não for possível ir para esquerda, vá para a direita. */
     if ((*linked_list)->right != NULL) {
+        /* Note que "binary_word << 1 | 1":
+         * adiciona 1 ao caminho até a folha.*/
         make_preorder_dictionary(&(*linked_list)->right, dictionary, pre_order_tree,
                                  binary_word << 1 | 1);
     }
 
+    /* Se ambos os filhos, da esquerda e da direita foram NULL, então chegou em uma folha,
+     * deve adicioanr essa folha ao dicionario. */
     if (((*linked_list)->right == NULL) && ((*linked_list)->left == NULL)) {
+        /* Aloca memória para o item do dicionário. */
+        unsigned long *dictionary_item =
+            (unsigned long *) malloc(2 * sizeof(unsigned long));
 
-        if((*linked_list)->data->byte == '*' || (*linked_list)->data->byte == '\\') {
-            char *new_pre_order_tree = (char *) malloc(sizeof(pre_order_tree) + sizeof(char));
+        /* Atribui valores do item. */
+        dictionary_item[0] = (unsigned long) (*linked_list)->data->byte;
+        dictionary_item[1] = binary_word;
+
+        /* Inclui o item no dicionário. */
+        (*dictionary)[dictionary_index] = dictionary_item;
+        dictionary_index++;
+
+        /* Casos especiais: Adição do caracter de escape a string em pré ordem. */
+        if ((*linked_list)->data->byte == '*' || (*linked_list)->data->byte == '\\') {
+            /* Aumenta em 1 byte a memória atual para a string em pré ordem */
+            char *new_pre_order_tree =
+                (char *) malloc(sizeof(pre_order_tree) + sizeof(char));
             new_pre_order_tree = *pre_order_tree;
 
+            /* Adição do caracter de escape. */
             new_pre_order_tree[pre_order_index - 1] = '\\';
-            new_pre_order_tree[pre_order_index] = (*linked_list)->data->byte;
+            new_pre_order_tree[pre_order_index]     = (*linked_list)->data->byte;
 
             *pre_order_tree = &*new_pre_order_tree;
 
             pre_order_index++;
         }
-
-        unsigned long *dictionary_item =
-            (unsigned long *) malloc(2 * sizeof(unsigned long));
-
-        dictionary_item[0] = (unsigned long) (*linked_list)->data->byte;
-        dictionary_item[1] = binary_word;
-
-        (*dictionary)[dictionary_index] = dictionary_item;
-
-        dictionary_index++;
-
 #if DEBUG_MODE
-        printf("Second: %c , 0x%x, %d\n", (*linked_list)->data->byte, binary_word,
+        printf("%c , 0x%x, %d\n", (*linked_list)->data->byte, binary_word,
                dictionary_index);
 #endif
     }
@@ -237,7 +258,7 @@ static char *make_header(huffman_tree_t *huffman_tree)
 
     for (int x = 0; x < insert_size; x++) {
         /* Verifica se possuí um caracter de scape e não contabiliza-o para gravação. */
-        if(huffman_tree->preorder[x] == '\\') {
+        if (huffman_tree->preorder[x] == '\\') {
             insert_size += 1;
         }
 
@@ -246,8 +267,8 @@ static char *make_header(huffman_tree_t *huffman_tree)
 
 #if DEBUG_MODE
     printf("\nHeader: ");
-    printf_bit_to_bit(header[0]);
-    printf_bit_to_bit(header[1]);
+    printf_bit_by_bit(header[0]);
+    printf_bit_by_bit(header[1]);
     printf("\n");
 
     for (int x = 0; x < insert_size; x++) {
@@ -369,15 +390,13 @@ int compress_file(char *input_file_name, char *output_file_name,
                         return ERR_FILE_WRITE;
                     }
 
-                    // printf_bit_to_bit(output_byte);
-
                     shift_cache = 0;
                     depth       = depth - shift_for_output;
                 }
 
 #if DEBUG_MODE
                 printf("Pre-shift: ");
-                printf_bit_to_bit(output_byte);
+                printf_bit_by_bit(output_byte);
 #endif
                 output_byte = output_byte << depth;
                 output_byte = output_byte | target_eq_byte;
@@ -385,7 +404,7 @@ int compress_file(char *input_file_name, char *output_file_name,
 
 #if DEBUG_MODE
                 printf("shift cache: %d, depth: %lu -> ", shift_cache, depth);
-                printf_bit_to_bit(output_byte);
+                printf_bit_by_bit(output_byte);
                 printf("\n");
 #endif
                 break;

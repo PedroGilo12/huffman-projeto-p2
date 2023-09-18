@@ -266,7 +266,7 @@ int count_nodes(linked_list_t *head)
     return count - 1;
 }
 
-void printf_bit_to_bit(char byte) {
+void printf_bit_by_bit(char byte) {
     for (int i = 7; i >= 0; i--) {
         char mask = 1 << i;
         char bit = (byte & mask) ? '1' : '0';
