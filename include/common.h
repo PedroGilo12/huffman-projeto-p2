@@ -51,6 +51,8 @@ typedef struct linked_list {
     // TODO: Verificar implementação de um array de ponteiros para funções básicas da
     // lista
     void (*func)(struct linked_list);
+
+    int freq;
 } linked_list_t;
 
 /**
@@ -102,5 +104,13 @@ void print_linked_list_byte_frequency(linked_list_t *linked_list);
  * @return
  */
 int insert_ordered_in_linked_list(linked_list_t **linked_list, linked_list_t *new_node);
+
+/**
+ * @brief Cria um novo nó para formar a árvore.
+ * @param data Representa o caracter atual da string que vai ser utilizado para compor a árvore.
+ *
+ * @return
+ */
+linked_list_t *new_node(void *data);
 
 #endif  // GZIP_V1_COMMON_H

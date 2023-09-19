@@ -209,3 +209,15 @@ void print_linked_list_byte_frequency(linked_list_t *linked_list)
         current = current->next;
     }
 }
+
+linked_list_t *new_node(void *data)
+{
+    linked_list_t *node = (linked_list_t *) malloc(sizeof(linked_list_t));
+    node->data = (byte_frequency_t *) malloc(sizeof(byte_frequency_t));
+    node->data->byte = *(char*) data; //Explique de novo!
+    node->freq = 0;
+    node->left = NULL;
+    node->right = NULL;
+
+    return node;
+}
