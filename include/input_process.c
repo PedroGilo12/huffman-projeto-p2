@@ -233,7 +233,7 @@ static char *make_header(huffman_tree_t *huffman_tree)
     /* Procedimento de gravação dos dois primeiros bytes do cabeçalho. */
     header[0] = header[0] | (huffman_tree->trash_size << 5);
     header[0] = header[0] | (huffman_tree->tree_size >> 8);
-    header[1] = header[1] | (huffman_tree->tree_size & 0xF);
+    header[1] = header[1] | (huffman_tree->tree_size & 0xFF);
     /* Procedimento de gravação dos dois primeiros bytes do cabeçalho:
      *
      * header = 0000 0000 0000 0000
@@ -466,10 +466,12 @@ int compress_file(char *input_file_name, char *output_file_name,
 
     /* Cria o cabeçalho e insere no arquivo. */
     header = make_header(huffman_tree);
-    insert_header(output_file_name, header, strlen(header));
 
     fclose(input_file);
     fclose(output_file);
+
+    printf("\nTamanho da arvore: %d\n", huffman_tree->tree_size);
+    insert_header(output_file_name, header, strlen(header));
 
     return 0;
 }
