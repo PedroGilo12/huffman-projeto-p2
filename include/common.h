@@ -21,7 +21,7 @@
 /**
  * @brief Se DEBUG_MODE == 1 então retornos de debug estarão habilitados.
  */
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 
 /**
  * @brief Enumeração para sinais de erro.
@@ -141,5 +141,13 @@ void printf_bit_by_bit(char byte);
  * @return Quantidade de nós na lista.
  */
 int count_nodes(linked_list_t *head);
+
+/**
+ * @brief Cria um novo nó para formar a árvore.
+ * @param data Representa o caracter atual da string que vai ser utilizado para compor a árvore.
+ *
+ * @return Um novo nó da lista.
+ */
+linked_list_t *new_node(void *data);
 
 #endif  // GZIP_V1_COMMON_H

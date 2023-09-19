@@ -217,6 +217,19 @@ void print_linked_list_byte_frequency(linked_list_t *linked_list)
     }
 }
 
+linked_list_t *new_node(void *data)
+{
+    linked_list_t *node = (linked_list_t *) malloc(sizeof(linked_list_t));
+    node->data = (byte_frequency_t *) malloc(sizeof(byte_frequency_t));
+
+    node->data->byte = *(char*) data; //Explique de novo!
+    ((byte_frequency_t*)(node->data))->frequency = 0;
+    node->left = NULL;
+    node->right = NULL;
+
+    return node;
+}
+
 bool compare_data_in_byte_frequency(byte_frequency_t *byte_frequency, void *received_data)
 {
     char data1 = byte_frequency->byte;
@@ -274,3 +287,4 @@ void printf_bit_by_bit(char byte) {
     }
     printf(" ");
 }
+
