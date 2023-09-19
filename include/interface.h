@@ -12,4 +12,11 @@
 #ifndef GZIP_V1_INTERFACE_H
 #define GZIP_V1_INTERFACE_H
 
+#include <common.h>
+#include <time.h>
+#include <input_process.h>
+#include <stdio.h>
+
+void main_interface(void);
+
 #endif  // GZIP_V1_INTERFACE_H
