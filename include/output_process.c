@@ -3,7 +3,7 @@
 linked_list_t* create_tree_from_preorder(char *string, int *index)
 {
 
-    /*Se o item for um * ele vai criar um novo nó sempre antes de continuar a árvore.*/
+    /* Se o item for um * ele vai criar um novo nó sempre antes de continuar a árvore. */
     if (string[*index] == '*')
     {
         linked_list_t * node = new_node(&string[*index]);
@@ -14,7 +14,7 @@ linked_list_t* create_tree_from_preorder(char *string, int *index)
     }
     else
     {
-        /*Se o item for uma / ele vai pular ele e continuar a analisar os outros itens.*/
+        /* Se o item for uma / ele vai pular ele e continuar a analisar os outros itens. */
         if(string[*index] == '/')
         {
             (*index)++;

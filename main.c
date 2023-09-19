@@ -1,8 +1,9 @@
-#include <stdio.h>
 #include <common.h>
 #include <input_process.h>
+#include <stdio.h>
 
-int main() {
+int main()
+{
     linked_list_t *linked_list = create_empty_linked_list();
 
     process_input_file_as_byte_frequency("input.txt", &linked_list);
@@ -11,9 +12,12 @@ int main() {
 
     print_linked_list_byte_frequency(linked_list);
 
-    make_ruffman_tree(&linked_list);
+    huffman_tree_t *huffman_tree = make_huffman_tree(&linked_list);
 
-    print_linked_list_byte_frequency(linked_list);
+    make_preorder_dictionary(&huffman_tree->linkedList, &huffman_tree->dictionary,
+                             &huffman_tree->preorder, 0);
+
+    compress_file("input.txt", "output1.gip", huffman_tree);
 
     return 0;
 }
