@@ -20,7 +20,6 @@
  * @param index Utilizado para navegar pelos itens.
  *
  */
-
 linked_list_t* create_tree_from_preorder(const char string[], int *index);
 
 #endif //GZIP_V1_OUTPUT_PROCESS_H

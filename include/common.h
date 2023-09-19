@@ -146,7 +146,7 @@ int count_nodes(linked_list_t *head);
  * @brief Cria um novo nó para formar a árvore.
  * @param data Representa o caracter atual da string que vai ser utilizado para compor a árvore.
  *
- * @return
+ * @return Um novo nó da lista.
  */
 linked_list_t *new_node(void *data);
 

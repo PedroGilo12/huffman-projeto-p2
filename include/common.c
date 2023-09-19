@@ -221,8 +221,9 @@ linked_list_t *new_node(void *data)
 {
     linked_list_t *node = (linked_list_t *) malloc(sizeof(linked_list_t));
     node->data = (byte_frequency_t *) malloc(sizeof(byte_frequency_t));
+
     node->data->byte = *(char*) data; //Explique de novo!
-    node->freq = 0;
+    ((byte_frequency_t*)(node->data))->frequency = 0;
     node->left = NULL;
     node->right = NULL;
 
