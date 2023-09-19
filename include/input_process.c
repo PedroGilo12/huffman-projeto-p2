@@ -55,7 +55,7 @@ int process_input_file_as_byte_frequency(const char *file_name,
             ((byte_frequency_t *) current->data)->frequency += 1;
 
 #if DEBUG_MODE
-            printf("Caracter já existe %c, frequência: %lu\n",
+            printf("Caracter ja existe %c, freque   ncia: %lu\n",
                    ((byte_frequency_t *) current->data)->byte,
                    ((byte_frequency_t *) current->data)->frequency);
 #endif
@@ -73,16 +73,17 @@ int process_input_file_as_byte_frequency(const char *file_name,
     return 0;
 }
 
+// TODO: Criar ponteiro para o erro
 huffman_tree_t *make_huffman_tree(linked_list_t **linked_list)
 {
-    /* Aloca memoria para a arvore de Huffman */
+    /* Aloca memoria para a arvore de Huffman. */
     huffman_tree_t *huffman_tree = (huffman_tree_t *) malloc(sizeof(huffman_tree_t));
 
     int tree_size = count_nodes(*linked_list);
     unsigned long **dictionary =
         (unsigned long **) malloc(tree_size * sizeof(unsigned long *));
 
-    /* Verificação de ponteiro */
+    /* Verificação de ponteiro. */
     if (*linked_list == NULL || (*linked_list)->next == NULL) {
         return NULL;
     }
@@ -193,7 +194,7 @@ int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dicti
 
         /* Casos especiais: Adição do caracter de escape a string em pré ordem. */
         if ((*linked_list)->data->byte == '*' || (*linked_list)->data->byte == '\\') {
-            /* Aumenta em 1 byte a memória atual para a string em pré ordem */
+            /* Aumenta em 1 byte a memória atual para a string em pré ordem. */
             char *new_pre_order_tree =
                 (char *) malloc(sizeof(pre_order_tree) + sizeof(char));
             new_pre_order_tree = *pre_order_tree;
@@ -334,7 +335,7 @@ static int insert_header(const char *input_file_name, const void *data, size_t s
     fread(buffer, 1, last_size, input_file);
 
     /* Posicione o ponteiro novamente no início do arquivo. */
-    rewind(input_file);
+    fseek(input_file, 0, SEEK_SET);
 
     /* Escreva os novos dados no início do arquivo */
     fwrite(data, 1, size_data, input_file);
@@ -360,7 +361,7 @@ int compress_file(char *input_file_name, char *output_file_name,
     unsigned int cache_buffer = 0;
 
     /* Quantidade de bits que foram alocados no byte de saída. */
-    unsigned int shift_cache = 0;
+    unsigned int shift_output_cache = 0;
 
     /* Byte equivalente do dicionário. */
     unsigned int target_eq_byte = 0;
@@ -379,7 +380,7 @@ int compress_file(char *input_file_name, char *output_file_name,
 
     while (1) {
         /* Alocação de memória para armazenar provisóriamente o byte lido no arquivo */
-        char *input_byte = malloc(sizeof(char));
+        char *input_byte = (char *) malloc(sizeof(char));
 
         if (fread(input_byte, 1, 1, input_file) != 1) {
             /* Libera a memória reservada para byte antes de sair do loop */
@@ -403,13 +404,14 @@ int compress_file(char *input_file_name, char *output_file_name,
                     find_depth_in_huffman_tree(huffman_tree->linkedList, &target_byte, 0);
 
                 /* Caso o tamanho da palavra de saída estrapole o tamanho de 1 byte. */
-                while (shift_cache + depth >= 8) {
+                while (shift_output_cache + depth >= 8) {
                     /* shift_for_output -> quantidade de bits deslocados para a saída.
                      *
                      * shift_for_cache -> quantidade de bits deslocados para o cache.
                      */
-                    unsigned int shift_for_output = (depth - (shift_cache + depth - 8));
-                    unsigned int shift_for_cache  = ((shift_cache + depth) - 8);
+                    unsigned int shift_for_output =
+                        (depth - (shift_output_cache + depth - 8));
+                    unsigned int shift_for_cache = ((shift_output_cache + depth) - 8);
 
                     /* Desloca os bits para a saída. */
                     output_byte = output_byte << shift_for_output;
@@ -429,8 +431,8 @@ int compress_file(char *input_file_name, char *output_file_name,
                         return ERR_FILE_WRITE;
                     }
 
-                    shift_cache = 0;
-                    depth       = depth - shift_for_output;
+                    shift_output_cache = 0;
+                    depth              = depth - shift_for_output;
                 }
 
 #if DEBUG_MODE
@@ -441,10 +443,10 @@ int compress_file(char *input_file_name, char *output_file_name,
                 /* Desloca o bit para a saída. */
                 output_byte = output_byte << depth;
                 output_byte = output_byte | target_eq_byte;
-                shift_cache += depth;
+                shift_output_cache += depth;
 
 #if DEBUG_MODE
-                printf("shift cache: %d, depth: %lu -> ", shift_cache, depth);
+                printf("shift cache: %d, depth: %lu -> ", shift_output_cache, depth);
                 printf_bit_by_bit(output_byte);
                 printf("\n");
 #endif
@@ -454,10 +456,10 @@ int compress_file(char *input_file_name, char *output_file_name,
     }
 
     /* Salva o ultimo byte e calcula o lixo. */
-    if (shift_cache) {
-        trash_size  = 8 - shift_cache;
+    if (shift_output_cache) {
+        trash_size  = 8 - shift_output_cache;
         output_byte = output_byte << trash_size;
-        output_byte = output_byte | (0xFF >> shift_cache);
+        output_byte = output_byte | (0xFF >> shift_output_cache);
 
         huffman_tree->trash_size = trash_size;
     }

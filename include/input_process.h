@@ -33,6 +33,7 @@ huffman_tree_t *make_huffman_tree(linked_list_t **linked_list);
 
 /**
  * @brief Cria um dicionário e uma string em pré ordem com base na árvore de Huffman.
+ *
  * @param linked_list [in] Lista encadeada da árvore de Huffman.
  * @param dictionary [out] Dicionário gerado a partir da árvore.
  * @param pre_order_tree [out] String da árvore em pré ordem.
