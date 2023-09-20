@@ -62,8 +62,8 @@ typedef struct linked_list {
 typedef struct huffman_tree {
     linked_list_t * linkedList;  /**< Árvore de huffman */
     char * preorder;             /**< Árvore de huffman em pré-ordem */
-    unsigned int tree_size;      /**< Tamanho da árvore */
-    unsigned int trash_size;     /**< Tamanho do lixo */
+    unsigned long tree_size;      /**< Tamanho da árvore */
+    unsigned long trash_size;     /**< Tamanho do lixo */
     unsigned long ** dictionary; /**< Dicionário */
 } huffman_tree_t;
 

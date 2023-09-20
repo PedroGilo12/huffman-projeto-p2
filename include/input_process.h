@@ -13,6 +13,8 @@
 #define GZIP_V1_INPUT_PROCESS_H
 #include <common.h>
 
+#define STATIC_RESET NULL, NULL, NULL, -1
+
 /**
  * @brief   Conta o numero de caracteres de um arquivo e armazena em uma lista encadeada
  *          onde cada nó contém um caracter presente no arquivo e sua frequência.
@@ -41,7 +43,7 @@ huffman_tree_t *make_huffman_tree(linked_list_t **linked_list);
  * @return 0 em caso de sucesso ou inteiro positivo em caso de falha.
  */
 int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
-                    char **pre_order_tree, unsigned int binary_word);
+                             char **pre_order_tree, int binary_word);
 
 /**
  * @brief Comprime um arquivo de entrada com base em uma árvore de Huffman.

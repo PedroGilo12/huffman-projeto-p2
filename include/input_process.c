@@ -142,15 +142,21 @@ huffman_tree_t *make_huffman_tree(linked_list_t **linked_list)
 }
 
 int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
-                             char **pre_order_tree, unsigned int binary_word)
+                             char **pre_order_tree, int binary_word)
 {
     /* Variáveis estáticas para contabilizar o índice do dicionário e da string em pré
      * ordem. */
     static int dictionary_index = 0;
     static int pre_order_index  = 0;
 
+    if (binary_word == -1) {
+        dictionary_index = 0;
+        pre_order_index  = 0;
+        return 0;
+    }
+
     /* Verifica se os ponteiros são válidos. */
-    if (linked_list == NULL) {
+    if (linked_list == NULL || dictionary == NULL) {
         return ERR_NULL_POINTER;
     }
 
@@ -196,8 +202,7 @@ int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dicti
         if ((*linked_list)->data->byte == '*' || (*linked_list)->data->byte == '\\') {
             /* Aumenta em 1 byte a memória atual para a string em pré ordem. */
             char *new_pre_order_tree =
-                (char *) malloc(sizeof(pre_order_tree) + sizeof(char));
-            new_pre_order_tree = *pre_order_tree;
+                (char *) realloc(*pre_order_tree, (pre_order_index + 1) * sizeof(char));
 
             /* Adição do caracter de escape. */
             new_pre_order_tree[pre_order_index - 1] = '\\';
@@ -207,7 +212,7 @@ int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dicti
 
             pre_order_index++;
         }
-#if DEBUG_MODE
+#if !DEBUG_MODE
         printf("%c , 0x%x, %d\n", (*linked_list)->data->byte, binary_word,
                dictionary_index);
 #endif
@@ -471,7 +476,7 @@ int compress_file(char *input_file_name, char *output_file_name,
     fclose(output_file);
 
     printf("\nTamanho da arvore: %d\n", huffman_tree->tree_size);
-    insert_header(output_file_name, header, strlen(header));
+    insert_header(output_file_name, header, strlen(header) - 1);
 
     return 0;
 }
