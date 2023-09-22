@@ -202,7 +202,8 @@ int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dicti
         if ((*linked_list)->data->byte == '*' || (*linked_list)->data->byte == '\\') {
             /* Aumenta em 1 byte a memória atual para a string em pré ordem. */
             char *new_pre_order_tree =
-                (char *) realloc(*pre_order_tree, (pre_order_index + 1) * sizeof(char));
+                (char *) malloc(sizeof(pre_order_tree) + sizeof(char));
+            new_pre_order_tree = *pre_order_tree;
 
             /* Adição do caracter de escape. */
             new_pre_order_tree[pre_order_index - 1] = '\\';
@@ -465,6 +466,15 @@ int compress_file(char *input_file_name, char *output_file_name,
         trash_size  = 8 - shift_output_cache;
         output_byte = output_byte << trash_size;
         output_byte = output_byte | (0xFF >> shift_output_cache);
+
+        /* Escreve o byte no arquivo. */
+        size_t write = fwrite(&output_byte, sizeof(output_byte), 1, output_file);
+
+        /* Caso não seja possível gravar o byte no arquivo. */
+        if (write != 1) {
+            fclose(output_file);
+            return ERR_FILE_WRITE;
+        }
 
         huffman_tree->trash_size = trash_size;
     }

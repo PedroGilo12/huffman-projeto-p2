@@ -50,37 +50,85 @@ int extract_file(char *compressed_file_name, char *extracted_file_name,
                  huffman_tree_t *huffman_tree)
 {
     FILE *compressed_file = fopen(compressed_file_name, "rb");
+    FILE *extracted_file = fopen(extracted_file_name, "wb");
 
-    if (fseek(compressed_file, huffman_tree->tree_size + 2, SEEK_SET) != 0)
-    {
-        perror("Erro ao fazer fseek");
-        fclose(compressed_file);
-        return 1;
+    if (!compressed_file) {
+        return ERR_FILE_NOT_FOUND;
     }
-    char *byte = malloc(sizeof(char));
 
-    fread(byte, 1, 1, compressed_file);
+    linked_list_t *current = huffman_tree->linkedList;
+    unsigned long binary_word = 0;
+    unsigned int shift_bit = 0;
+    unsigned int target_eq_byte = 0;
+    unsigned long end_file = 0;
 
-    printf("primeiro byte pos header: ");
-    printf_bit_by_bit(*byte);
+    /* Conseguir a posição do ínicio do lixo. */
+    fseek(compressed_file, 0, SEEK_END);
+    end_file = ftell(compressed_file);
 
-    //
-    //    while (1) {
-    //        /* Alocação de memória para armazenar provisóriamente o byte lido no arquivo
-    //        */ char *byte = malloc(sizeof(char));
-    //
-    //        if (fread(byte, 1, 1, compressed_file) != 1) {
-    //            /* Libera a memória reservada para byte antes de sair do loop */
-    //            free(byte);
-    //            break;
-    //        }
-    //
-    //
-    //
-    //        }
-    //    }
-    //
+    fseek(compressed_file, huffman_tree->tree_size + 2, SEEK_SET);
+
+    while (1) {
+        char byte;
+
+        if (fread(&byte, 1, 1, compressed_file) != 1) {
+            break;
+        }
+
+        for (int shift_cache = 7; shift_cache >= 0; shift_cache--) {
+            if (current->left == NULL && current->right == NULL) {
+                current = huffman_tree->linkedList;
+
+                for (int scan_dict = 0; scan_dict <= huffman_tree->tree_size / 2;
+                     scan_dict++) {
+                    char target_byte = (char) huffman_tree->dictionary[scan_dict][0];
+                    target_eq_byte = huffman_tree->dictionary[scan_dict][1];
+
+                    if (target_eq_byte == binary_word) {
+                        printf_bit_by_bit(target_eq_byte);
+                        printf("= %c\n", target_byte);
+
+                        /* Escreve o byte no arquivo. */
+                        size_t write =
+                            fwrite(&target_byte, sizeof(target_byte), 1, extracted_file);
+
+                        /* Caso não seja possível gravar o byte no arquivo. */
+                        if (write != 1) {
+                            fclose(extracted_file);
+                            return ERR_FILE_WRITE;
+                        }
+
+                        break;
+                    }
+                }
+
+                binary_word = 0;
+                unsigned long current_p_file = ftell(compressed_file);
+
+                if(current_p_file >= end_file) {
+                    break;
+                }
+            }
+
+            shift_bit = (byte >> shift_cache) & 0x1;
+
+            if (shift_bit == 0) {
+                binary_word = (binary_word << 1) | 0;
+                current = current->left;
+            }
+
+            if (shift_bit == 1) {
+                binary_word = (binary_word << 1) | 1;
+                current = current->right;
+            }
+        }
+    }
+
+    fclose(compressed_file);
+    return 0; // Ou outro código de sucesso, dependendo do seu sistema.
 }
+
+
 
 linked_list_t *create_tree_from_preorder(char *string, int *index)
 {
