@@ -23,7 +23,7 @@
  * @param linked_list [out] Lista encadeada com os bytes presentes no arquivo.
  * @return 0 em caso de sucesso ou inteiro negativo em caso de falha.
  */
-int process_input_file_as_byte_frequency(const char *file_name,
+int process_input_file_as_byte_frequency(const unsigned char *file_name,
                                          linked_list_t **linked_list);
 
 /**
@@ -43,7 +43,7 @@ huffman_tree_t *make_huffman_tree(linked_list_t **linked_list);
  * @return 0 em caso de sucesso ou inteiro positivo em caso de falha.
  */
 int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
-                             char **pre_order_tree, int binary_word);
+                             unsigned char **pre_order_tree, int binary_word);
 
 /**
  * @brief Comprime um arquivo de entrada com base em uma árvore de Huffman.
@@ -52,7 +52,7 @@ int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dicti
  * @param huffman_tree Árvore de Huffman.
  * @return 0 em caso de sucesso ou inteiro positivo em caso de falha.
  */
-int compress_file(char *input_file_name, char *output_file_name,
+int compress_file(unsigned char *input_file_name, unsigned char *output_file_name,
                   huffman_tree_t *huffman_tree);
 
 #endif  // GZIP_V1_INPUT_PROCESS_H

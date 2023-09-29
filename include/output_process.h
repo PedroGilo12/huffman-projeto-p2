@@ -16,7 +16,7 @@
 typedef struct file_header {
     unsigned long trash_size;
     unsigned long tree_size;
-    char * preorder_tree;
+    unsigned char * preorder_tree;
 } file_header_t;
 
 /**
@@ -25,7 +25,7 @@ typedef struct file_header {
  * @param file_header
  * @return
  */
-int get_header_from_file(char * compressed_file_name, file_header_t ** file_header);
+int get_header_from_file(unsigned char * compressed_file_name, file_header_t ** file_header);
 
 /**
  * @brief Recebe a string já em pré-ordem e transforma ela em uma árvore binária utilizando recursão.
@@ -34,7 +34,7 @@ int get_header_from_file(char * compressed_file_name, file_header_t ** file_head
  * @param index Utilizado para navegar pelos itens.
  *
  */
-linked_list_t* create_tree_from_preorder(char *string, int *index);
+linked_list_t* create_tree_from_preorder(unsigned char *string, int *index);
 
 /**
  * @brief
@@ -43,7 +43,7 @@ linked_list_t* create_tree_from_preorder(char *string, int *index);
  * @param huffman_tree
  * @return
  */
-int extract_file(char *compressed_file_name, char *extracted_file_name,
+int extract_file(unsigned char *compressed_file_name, unsigned char *extracted_file_name,
                  huffman_tree_t *huffman_tree);
 
 #endif //GZIP_V1_OUTPUT_PROCESS_H

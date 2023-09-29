@@ -36,14 +36,14 @@ linked_list_t *create_empty_linked_list()
 }
 
 linked_list_t *exist_byte_in_linked_list(linked_list_t *linked_list,
-                                         const char *target_char)
+                                         const unsigned char *target_char)
 {
     /* Clona o ponteiro para o nó atual */
     linked_list_t *current = linked_list;
 
     while (current != NULL) {
         /* Clona o ponteiro para o dado do nó atual*/
-        char *data_char = (char *) current->data;
+        unsigned char *data_char = (unsigned char *) current->data;
         if (data_char != NULL && *data_char == *target_char) {
             return current;
         }
@@ -53,7 +53,7 @@ linked_list_t *exist_byte_in_linked_list(linked_list_t *linked_list,
     return NULL;
 }
 
-int insert_byte_frequency_at_beginning(linked_list_t **head, const char *byte,
+int insert_byte_frequency_at_beginning(linked_list_t **head, const unsigned char *byte,
                                        unsigned long frequency)
 {
     /* Aloca memória para um novo nó */
@@ -69,7 +69,7 @@ int insert_byte_frequency_at_beginning(linked_list_t **head, const char *byte,
         (byte_frequency_t *) malloc(sizeof(byte_frequency_t));
 
     /* Configura o dado */
-    byte_frequency->byte      = ((char *) byte)[0];
+    byte_frequency->byte      = ((unsigned char *) byte)[0];
     byte_frequency->frequency = frequency;
 
     /* Configura o nó */
@@ -210,7 +210,9 @@ void print_linked_list_byte_frequency(linked_list_t *linked_list)
     linked_list_t *current = linked_list;
 
     while (current->data != NULL) {
-        printf("Byte: 0x%x, Frequency: %lu\n", ((byte_frequency_t *) current->data)->byte,
+        printf("Byte: 0x%x, char: %c, Frequency: %lu\n",
+               ((byte_frequency_t *) current->data)->byte,
+               ((byte_frequency_t *) current->data)->byte,
                ((byte_frequency_t *) current->data)->frequency);
 
         current = current->next;
@@ -220,20 +222,20 @@ void print_linked_list_byte_frequency(linked_list_t *linked_list)
 linked_list_t *new_node(void *data)
 {
     linked_list_t *node = (linked_list_t *) malloc(sizeof(linked_list_t));
-    node->data = (byte_frequency_t *) malloc(sizeof(byte_frequency_t));
+    node->data          = (byte_frequency_t *) malloc(sizeof(byte_frequency_t));
 
-    node->data->byte = *(char*) data; //Explique de novo!
-    ((byte_frequency_t*)(node->data))->frequency = 0;
-    node->left = NULL;
-    node->right = NULL;
+    node->data->byte = *(unsigned char *) data;  // Explique de novo!
+    ((byte_frequency_t *) (node->data))->frequency = 0;
+    node->left                                     = NULL;
+    node->right                                    = NULL;
 
     return node;
 }
 
 bool compare_data_in_byte_frequency(byte_frequency_t *byte_frequency, void *received_data)
 {
-    char data1 = byte_frequency->byte;
-    char data2 = ((byte_frequency_t *) received_data)->byte;
+    unsigned char data1 = byte_frequency->byte;
+    unsigned char data2 = ((byte_frequency_t *) received_data)->byte;
     return data1 == data2;
 }
 
@@ -242,7 +244,7 @@ unsigned long find_depth_in_huffman_tree(linked_list_t *linked_list, void *targe
                                          unsigned long depth)
 {
     /* Caso base: se a árvore estiver vazia, retorne -1 */
-    if (linked_list == NULL ||linked_list->data == NULL) {
+    if (linked_list == NULL || linked_list->data == NULL) {
         return 0;
     }
 
@@ -279,12 +281,12 @@ int count_nodes(linked_list_t *head)
     return count - 1;
 }
 
-void printf_bit_by_bit(char byte) {
+void printf_bit_by_bit(unsigned char byte)
+{
     for (int i = 7; i >= 0; i--) {
-        char mask = 1 << i;
-        char bit = (byte & mask) ? '1' : '0';
+        unsigned char mask = 1 << i;
+        unsigned char bit  = (byte & mask) ? '1' : '0';
         printf("%c", bit);
     }
     printf(" ");
 }
-

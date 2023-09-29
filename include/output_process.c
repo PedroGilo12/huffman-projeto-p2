@@ -2,14 +2,14 @@
 
 #include <common.h>
 
-int get_header_from_file(char *compressed_file_name, file_header_t **file_header)
+int get_header_from_file(unsigned char *compressed_file_name, file_header_t **file_header)
 {
     FILE *compressed_file = fopen(compressed_file_name, "rb");
 
     unsigned int trash_size = 0;
     unsigned int tree_size  = 0;
 
-    char *full_sizes = (char *) malloc(2 * sizeof(char));
+    unsigned char *full_sizes = (unsigned char *) malloc(2 * sizeof(unsigned char));
 
     fread(full_sizes, 2, 1, compressed_file);
 
@@ -18,8 +18,9 @@ int get_header_from_file(char *compressed_file_name, file_header_t **file_header
 
     free(full_sizes);
 
-    char *byte           = (char *) malloc(sizeof(char));
-    char *pre_order_tree = (char *) malloc((tree_size + 2) * sizeof(char));
+    unsigned char *byte = (unsigned char *) malloc(sizeof(unsigned char));
+    unsigned char *pre_order_tree =
+        (unsigned char *) malloc((tree_size + 2) * sizeof(unsigned char));
 
     unsigned int header_end = tree_size;
 
@@ -46,21 +47,21 @@ int get_header_from_file(char *compressed_file_name, file_header_t **file_header
     return 0;
 }
 
-int extract_file(char *compressed_file_name, char *extracted_file_name,
+int extract_file(unsigned char *compressed_file_name, unsigned char *extracted_file_name,
                  huffman_tree_t *huffman_tree)
 {
     FILE *compressed_file = fopen(compressed_file_name, "rb");
-    FILE *extracted_file = fopen(extracted_file_name, "wb");
+    FILE *extracted_file  = fopen(extracted_file_name, "w+b");
 
     if (!compressed_file) {
         return ERR_FILE_NOT_FOUND;
     }
 
-    linked_list_t *current = huffman_tree->linkedList;
-    unsigned long binary_word = 0;
-    unsigned int shift_bit = 0;
+    linked_list_t *current      = huffman_tree->linkedList;
+    unsigned long binary_word   = 0;
+    unsigned int shift_bit      = 0;
     unsigned int target_eq_byte = 0;
-    unsigned long end_file = 0;
+    unsigned long end_file      = 0;
 
     /* Conseguir a posição do ínicio do lixo. */
     fseek(compressed_file, 0, SEEK_END);
@@ -69,7 +70,7 @@ int extract_file(char *compressed_file_name, char *extracted_file_name,
     fseek(compressed_file, huffman_tree->tree_size + 2, SEEK_SET);
 
     while (1) {
-        char byte;
+        unsigned char byte;
 
         if (fread(&byte, 1, 1, compressed_file) != 1) {
             break;
@@ -77,35 +78,25 @@ int extract_file(char *compressed_file_name, char *extracted_file_name,
 
         for (int shift_cache = 7; shift_cache >= 0; shift_cache--) {
             if (current->left == NULL && current->right == NULL) {
-                current = huffman_tree->linkedList;
+                unsigned char target_byte =
+                    (unsigned char) ((byte_frequency_t *) (current->data))->byte;
 
-                for (int scan_dict = 0; scan_dict <= huffman_tree->tree_size / 2;
-                     scan_dict++) {
-                    char target_byte = (char) huffman_tree->dictionary[scan_dict][0];
-                    target_eq_byte = huffman_tree->dictionary[scan_dict][1];
+                /* Escreve o byte no arquivo. */
+                size_t write =
+                    fwrite(&target_byte, sizeof(target_byte), 1, extracted_file);
 
-                    if (target_eq_byte == binary_word) {
-                        printf_bit_by_bit(target_eq_byte);
-                        printf("= %c\n", target_byte);
-
-                        /* Escreve o byte no arquivo. */
-                        size_t write =
-                            fwrite(&target_byte, sizeof(target_byte), 1, extracted_file);
-
-                        /* Caso não seja possível gravar o byte no arquivo. */
-                        if (write != 1) {
-                            fclose(extracted_file);
-                            return ERR_FILE_WRITE;
-                        }
-
-                        break;
-                    }
+                /* Caso não seja possível gravar o byte no arquivo. */
+                if (write != 1) {
+                    fclose(extracted_file);
+                    return ERR_FILE_WRITE;
                 }
 
-                binary_word = 0;
+                binary_word                  = 0;
                 unsigned long current_p_file = ftell(compressed_file);
 
-                if(current_p_file >= end_file) {
+                current = huffman_tree->linkedList;
+
+                if (current_p_file >= end_file) {
                     break;
                 }
             }
@@ -114,23 +105,22 @@ int extract_file(char *compressed_file_name, char *extracted_file_name,
 
             if (shift_bit == 0) {
                 binary_word = (binary_word << 1) | 0;
-                current = current->left;
+                current     = current->left;
             }
 
             if (shift_bit == 1) {
                 binary_word = (binary_word << 1) | 1;
-                current = current->right;
+                current     = current->right;
             }
         }
     }
 
     fclose(compressed_file);
-    return 0; // Ou outro código de sucesso, dependendo do seu sistema.
+    return 0;  // Ou outro código de sucesso, dependendo do seu sistema.
 }
 
 
-
-linked_list_t *create_tree_from_preorder(char *string, int *index)
+linked_list_t *create_tree_from_preorder(unsigned char *string, int *index)
 {
     /* Se o item for um * ele vai criar um novo nó sempre antes de continuar a árvore. */
     if (string[*index] == '*') {
