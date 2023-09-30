@@ -237,11 +237,6 @@ static unsigned char *make_header(huffman_tree_t *huffman_tree, unsigned int *si
     header[0] = 0;
     header[1] = 0;
 
-    /* Procedimento de gravação dos dois primeiros bytes do cabeçalho. */
-    header[0] = header[0] | (huffman_tree->trash_size << 5);
-    header[0] = header[0] | (huffman_tree->tree_size >> 8);
-    header[1] = header[1] | (huffman_tree->tree_size & 0xFF);
-
     /* Insere a árvore em pré ordem no cabeçalho. */
     unsigned long insert_size = huffman_tree->tree_size;
 
@@ -253,6 +248,14 @@ static unsigned char *make_header(huffman_tree_t *huffman_tree, unsigned int *si
 
         header[2 + x] = huffman_tree->preorder[x];
     }
+
+    huffman_tree->tree_size = insert_size;
+
+    /* Procedimento de gravação dos dois primeiros bytes do cabeçalho. */
+    header[0] = header[0] | (huffman_tree->trash_size << 5);
+    header[0] = header[0] | (huffman_tree->tree_size >> 8);
+    header[1] = header[1] | (huffman_tree->tree_size & 0xFF);
+
 
 #if DEBUG_MODE
     printf("\nHeader: ");
@@ -274,7 +277,7 @@ static unsigned char *make_header(huffman_tree_t *huffman_tree, unsigned int *si
     return header;
 }
 
-static int  insert_header(const char *input_file_name, unsigned char *data, size_t size_data)
+static int insert_header(const char *input_file_name, unsigned char *data, size_t size_data)
 {
     /* Definição das variáveis. */
     FILE *input_file;

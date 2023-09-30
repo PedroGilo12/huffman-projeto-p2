@@ -70,7 +70,7 @@ int extract_file(unsigned char *compressed_file_name, unsigned char *extracted_f
     fseek(compressed_file, 0, SEEK_END);
     end_file = ftell(compressed_file);
 
-    fseek(compressed_file, huffman_tree->tree_size + 2 + qtd_caracter_scape, SEEK_SET);
+    fseek(compressed_file, huffman_tree->tree_size + 2, SEEK_SET);
 
     while (1) {
         unsigned char byte;
