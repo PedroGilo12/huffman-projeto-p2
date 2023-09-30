@@ -51,7 +51,7 @@ int get_header_from_file(unsigned char *compressed_file_name, file_header_t **fi
 }
 
 int extract_file(unsigned char *compressed_file_name, unsigned char *extracted_file_name,
-                 huffman_tree_t *huffman_tree)
+                 huffman_tree_t *huffman_tree, int qtd_caracter_scape)
 {
     FILE *compressed_file = fopen(compressed_file_name, "rb");
     FILE *extracted_file  = fopen(extracted_file_name, "w+b");
@@ -70,7 +70,7 @@ int extract_file(unsigned char *compressed_file_name, unsigned char *extracted_f
     fseek(compressed_file, 0, SEEK_END);
     end_file = ftell(compressed_file);
 
-    fseek(compressed_file, huffman_tree->tree_size + 4, SEEK_SET);
+    fseek(compressed_file, huffman_tree->tree_size + 2 + qtd_caracter_scape, SEEK_SET);
 
     while (1) {
         unsigned char byte;
@@ -127,19 +127,20 @@ int extract_file(unsigned char *compressed_file_name, unsigned char *extracted_f
 }
 
 
-linked_list_t *create_tree_from_preorder(unsigned char *string, int *index)
+linked_list_t *create_tree_from_preorder(unsigned char *string, int *index, int *qtd_scape_caracter)
 {
     /* Se o item for um * ele vai criar um novo nó sempre antes de continuar a árvore. */
     if (string[*index] == '*') {
         linked_list_t *node = new_node(&string[*index]);
         (*index)++;
-        node->left  = (linked_list_t *) create_tree_from_preorder(string, index);
-        node->right = (linked_list_t *) create_tree_from_preorder(string, index);
+        node->left  = (linked_list_t *) create_tree_from_preorder(string, index, qtd_scape_caracter);
+        node->right = (linked_list_t *) create_tree_from_preorder(string, index, qtd_scape_caracter);
         return node;
     } else {
         /* Se o item for uma / ele vai pular ele e continuar a analisar os outros itens.
          */
         if (string[*index] == '\\') {
+            (*qtd_scape_caracter)++;
             (*index)++;
         }
 

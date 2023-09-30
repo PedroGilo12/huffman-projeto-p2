@@ -4,11 +4,11 @@
 #include <output_process.h>
 #include <stdio.h>
 
-#define COMPRESS 0
+#define COMPRESS 1
 
-const unsigned char input_file_name[] = "input.mp4";
+const unsigned char input_file_name[] = "input.jpg";
 const unsigned char output_compress_file_name[] = "output.gip";
-const unsigned char output_file_name[] = "output.mp4";
+const unsigned char output_file_name[] = "output.jpg";
 
 int main()
 {
@@ -51,7 +51,9 @@ int main()
 
     huffman_tree_t *huffman_output = (huffman_tree_t *) malloc(sizeof(huffman_tree_t));
 
-    huffman_output->linkedList = create_tree_from_preorder(header->preorder_tree, &index);
+    int qtd_caracter_scape = 0;
+
+    huffman_output->linkedList = create_tree_from_preorder(header->preorder_tree, &index, &qtd_caracter_scape);
 
     //TODO: Implementar função para executar isso ai.
     huffman_output->preorder = (unsigned char *) malloc(huffman_output->tree_size * sizeof(char));
@@ -67,7 +69,7 @@ int main()
     make_preorder_dictionary(&huffman_output->linkedList, &huffman_output->dictionary,
                              &huffman_output->preorder, 0);
 
-    extract_file(output_compress_file_name, output_file_name, huffman_output);
+    extract_file(output_compress_file_name, output_file_name, huffman_output, qtd_caracter_scape);
 
 #endif
     //***********************************************************************************

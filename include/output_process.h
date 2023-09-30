@@ -34,7 +34,7 @@ int get_header_from_file(unsigned char * compressed_file_name, file_header_t ** 
  * @param index Utilizado para navegar pelos itens.
  *
  */
-linked_list_t* create_tree_from_preorder(unsigned char *string, int *index);
+linked_list_t *create_tree_from_preorder(unsigned char *string, int *index, int *qtd_scape_caracter);
 
 /**
  * @brief
@@ -44,6 +44,6 @@ linked_list_t* create_tree_from_preorder(unsigned char *string, int *index);
  * @return
  */
 int extract_file(unsigned char *compressed_file_name, unsigned char *extracted_file_name,
-                 huffman_tree_t *huffman_tree);
+                 huffman_tree_t *huffman_tree, int qtd_caracter_scape);
 
 #endif //GZIP_V1_OUTPUT_PROCESS_H
