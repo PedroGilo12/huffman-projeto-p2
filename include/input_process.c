@@ -476,7 +476,6 @@ int compress_file(const char *input_file_name, const char *output_file_name,
     fclose(input_file);
     fclose(output_file);
 
-    printf("\nTamanho da árvore: %d\n", huffman_tree->tree_size);
     insert_header(output_file_name, header, size_head);
 
     return 0;

@@ -15,7 +15,10 @@
 #include <common.h>
 #include <time.h>
 #include <input_process.h>
+#include <output_process.h>
 #include <stdio.h>
+
+#define N_ATTEMPTS_TO_OPEN_FILE 9
 
 void main_interface(void);
 

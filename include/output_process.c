@@ -123,6 +123,7 @@ int extract_file(unsigned char *compressed_file_name, unsigned char *extracted_f
     }
 
     fclose(compressed_file);
+    fclose(extracted_file);
     return 0;  // Ou outro código de sucesso, dependendo do seu sistema.
 }
 
