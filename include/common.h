@@ -21,7 +21,7 @@
 /**
 * @brief Se DEBUG_MODE == 1 então retornos de debug estarão habilitados.
 */
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 
 /**
 * @brief Enumeração para sinais de erro.

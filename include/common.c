@@ -217,6 +217,7 @@ void print_linked_list_byte_frequency(linked_list_t *linked_list)
 
         current = current->next;
     }
+    printf("Finished!\n");
 }
 
 linked_list_t *new_node(void *data)
@@ -249,7 +250,7 @@ unsigned long find_depth_in_huffman_tree(linked_list_t *linked_list, void *targe
     }
 
     /* Se o nó atual tiver o valor desejado, retorne a profundidade */
-    if (compare_data_in_byte_frequency(linked_list->data, (byte_frequency_t *) target)) {
+    if ((compare_data_in_byte_frequency(linked_list->data, (byte_frequency_t *) target)) && (linked_list->left == NULL) && (linked_list->right == NULL)) {
         return depth;
     }
 
@@ -273,12 +274,12 @@ int count_nodes(linked_list_t *head)
     int count              = 0;
     linked_list_t *current = head;
 
-    while (current != NULL) {
+    while (current->data != NULL) {
         count++;
         current = current->next;
     }
 
-    return count - 1;
+    return count;
 }
 
 void printf_bit_by_bit(unsigned char byte)

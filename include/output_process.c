@@ -14,7 +14,10 @@ int get_header_from_file(unsigned char *compressed_file_name, file_header_t **fi
     fread(full_sizes, 2, 1, compressed_file);
 
     trash_size = trash_size | ((full_sizes[0] & 0xFF) >> 5);
-    tree_size  = (tree_size | ((full_sizes[0] & 0x1F)) << 5) | (full_sizes[1] & 0xFF);
+    tree_size  = (tree_size | full_sizes[0]);
+    tree_size = (tree_size << 8);
+    tree_size = tree_size & 0x1FFF;
+    tree_size = tree_size | full_sizes[1];
 
     free(full_sizes);
 
@@ -67,7 +70,7 @@ int extract_file(unsigned char *compressed_file_name, unsigned char *extracted_f
     fseek(compressed_file, 0, SEEK_END);
     end_file = ftell(compressed_file);
 
-    fseek(compressed_file, huffman_tree->tree_size + 2, SEEK_SET);
+    fseek(compressed_file, huffman_tree->tree_size + 4, SEEK_SET);
 
     while (1) {
         unsigned char byte;
@@ -77,7 +80,7 @@ int extract_file(unsigned char *compressed_file_name, unsigned char *extracted_f
         }
 
         for (int shift_cache = 7; shift_cache >= 0; shift_cache--) {
-            if (current->left == NULL && current->right == NULL) {
+            if (current != NULL && current->left == NULL && current->right == NULL) {
                 unsigned char target_byte =
                     (unsigned char) ((byte_frequency_t *) (current->data))->byte;
 
@@ -99,6 +102,10 @@ int extract_file(unsigned char *compressed_file_name, unsigned char *extracted_f
                 if (current_p_file >= end_file) {
                     break;
                 }
+            }
+
+            if(current == NULL) {
+                break;
             }
 
             shift_bit = (byte >> shift_cache) & 0x1;
@@ -132,7 +139,7 @@ linked_list_t *create_tree_from_preorder(unsigned char *string, int *index)
     } else {
         /* Se o item for uma / ele vai pular ele e continuar a analisar os outros itens.
          */
-        if (string[*index] == '/') {
+        if (string[*index] == '\\') {
             (*index)++;
         }
 
