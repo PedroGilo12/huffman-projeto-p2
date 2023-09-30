@@ -26,7 +26,7 @@
  */
 static int insert_header(const char *input_file_name, unsigned char *data, size_t size_data);
 
-int process_input_file_as_byte_frequency(const unsigned char *file_name,
+int process_input_file_as_byte_frequency(const char *file_name,
                                          linked_list_t **linked_list)
 {
     /* Verificação de ponteiro para garantir que os ponteiros são válidos */
@@ -329,7 +329,7 @@ static int  insert_header(const char *input_file_name, unsigned char *data, size
     return 0;
 }
 
-int compress_file(unsigned char *input_file_name, unsigned char *output_file_name,
+int compress_file(const char *input_file_name, const char *output_file_name,
                   huffman_tree_t *huffman_tree)
 {
     unsigned char *header =
