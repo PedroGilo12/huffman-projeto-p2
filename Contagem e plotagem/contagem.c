@@ -126,7 +126,7 @@ typedef struct node_avl {
  * @param upper Valor máximo dos números aleatórios.
  * @return Um número aleatório único.
  */
-    int generate_random_unique(int* arr, int n, int lower, int upper);
+    int generate_random(int lower, int upper);
 
     
 int main() {
@@ -138,7 +138,7 @@ int main() {
     FILE* output_degenerate = fopen("output_degenerate.txt", "w"); 
 
     int lower = 1; /* Valor mínimo dos números aleatórios */
-    int upper = 20000; /* Valor máximo dos números aleatórios */
+    int upper = 200000; /* Valor máximo dos números aleatórios */
 
     /* Loop para acrescentar na entrada */
     for (int n = 0; n <= 200000; n += 100) {
@@ -147,22 +147,17 @@ int main() {
         node_avl_t* avl_root = NULL;
         node_degenerate_t* degenerate_root = NULL;
 
-        /* Inicializa um array para armazenar números gerados */
-        int* random_numbers = (int*)malloc(n * sizeof(int));
-
         /* Gera e insere números aleatórios nas árvores */
         for (int i = 0; i < n; i++) {
 
-            int num = generate_random_unique(random_numbers, i, lower, upper); /* recebe o número gerado */
+            int num = generate_random(lower, upper); /* recebe o número gerado */
             
-            random_numbers[i] = num; /* insere o número gerado no array */
-
             avl_root = insert_avl(avl_root, num); /* Insere na AVL */
 
             degenerate_root = insert_degenerate(degenerate_root, num); /* Insere na árvore Binária Degenerada */
         }
 
-        int target = -50; /* Define o valor alvo que não está presente nos números gerados */
+        int target = generate_random(lower, upper) ; /* Define o valor alvo que não está presente nos números gerados */
 
         /* Contadores de comparações */
         int avl_Comparisons = 0;
@@ -175,17 +170,15 @@ int main() {
         /* Escreve os resultados no arquivo de saída */
         fprintf(output_avl, "%d\t%d\n", n, avl_Comparisons);
         fprintf(output_degenerate, "%d\t%d\n", n, degenerate_comparisons);
-
-        free(random_numbers); /* Libera a memória alocada para o array de números aleatórios */
     }
 
-    /* Fecha o arquivo de saída AVL */
+    /* Fecha o arquivo de saída AVL */         
+
     fclose(output_avl); 
     fclose(output_degenerate);
 
     return 0;
 }
-
 
 node_degenerate_t* new_node_degenerate(int data) {
     
@@ -373,34 +366,13 @@ int search_degenerate(node_degenerate_t* root, int target, int* comparisons) {
     else if (target < root->data)
         return search_degenerate(root->left, target, comparisons); 
     
-    /* Recursivamente, busca na subárvore esquerda (corrigindo um erro tipográfico, deveria ser direita) */
+    /* Recursivamente, busca na subárvore ser direita */
     else
         return search_degenerate(root->left, target, comparisons); 
 }
 
-int generate_random_unique(int* arr, int n, int lower, int upper) {
+int generate_random(int lower, int upper) {
 
-    int num = rand() % (upper - lower + 1) + lower; /* Gera um número aleatório no intervalo [lower, upper] */
-
-    /* Entra em um loop infinito para garantir a geração de um número único */
-    while (1) {
-       
-        int is_unique = 1;
-
-        /*  Verifica se o número gerado já existe no array de números gerados anteriormente */
-        for (int i = 0; i < n; i++) {
-            
-            if (arr[i] == num) {
-                is_unique = 0; /* Define isUnique como 0 se o número gerado já estiver no array */
-                break;
-            }
-        }
-
-        /* Se o número for único, retorna-o */
-        if (is_unique)
-            return num;
-
-        /* Gera um novo número aleatório se o número não for único */
-        num = rand() % (upper - lower + 1) + lower;
-    }
+    int num = rand() % (upper - lower + 1); /* Gera um número aleatório no intervalo [lower, upper] */
+    return num;
 }
