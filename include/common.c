@@ -9,7 +9,7 @@
  *          Raniel Ferreira Athayde (rfa@ic.ufal.br)
  */
 
-#include <common.h>
+#include "common.h"
 
 /**
  * @brief Troca dois nós em uma lista encadeada.
@@ -225,7 +225,7 @@ linked_list_t *new_node(void *data)
     linked_list_t *node = (linked_list_t *) malloc(sizeof(linked_list_t));
     node->data          = (byte_frequency_t *) malloc(sizeof(byte_frequency_t));
 
-    node->data->byte = *(unsigned char *) data;  // Explique de novo!
+    ((byte_frequency_t *) (node->data))->byte      = *(unsigned char *) data;
     ((byte_frequency_t *) (node->data))->frequency = 0;
     node->left                                     = NULL;
     node->right                                    = NULL;
@@ -250,7 +250,8 @@ unsigned long find_depth_in_huffman_tree(linked_list_t *linked_list, void *targe
     }
 
     /* Se o nó atual tiver o valor desejado, retorne a profundidade */
-    if ((compare_data_in_byte_frequency(linked_list->data, (byte_frequency_t *) target)) && (linked_list->left == NULL) && (linked_list->right == NULL)) {
+    if ((compare_data_in_byte_frequency(linked_list->data, (byte_frequency_t *) target))
+        && (linked_list->left == NULL) && (linked_list->right == NULL)) {
         return depth;
     }
 

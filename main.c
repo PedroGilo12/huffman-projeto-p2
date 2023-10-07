@@ -1,8 +1,8 @@
-#include <common.h>
-#include <input_process.h>
-#include <interface.h>
-#include <output_process.h>
-#include <stdio.h>
+#include "common.h"
+#include "compress_process.h"
+#include "extract_process.h"
+#include "interface.h"
+#include "stdio.h"
 
 int main()
 {

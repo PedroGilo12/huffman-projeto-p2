@@ -9,10 +9,13 @@
  *          Raniel Ferreira Athayde (rfa@ic.ufal.br)
  */
 
-#ifndef GZIP_V1_INPUT_PROCESS_H
-#define GZIP_V1_INPUT_PROCESS_H
-#include <common.h>
+#ifndef GZIP_V1_COMPRESS_PROCESS_H
+#define GZIP_V1_COMPRESS_PROCESS_H
+#include "common.h"
 
+/**
+ * @brief Macro para resetar as váriaveis estáticas de uma função.
+ */
 #define STATIC_RESET NULL, NULL, NULL, -1
 
 /**
@@ -55,4 +58,4 @@ int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dicti
 int compress_file(const char *input_file_name, const char *output_file_name,
                   huffman_tree_t *huffman_tree);
 
-#endif  // GZIP_V1_INPUT_PROCESS_H
+#endif  // GZIP_V1_COMPRESS_PROCESS_H

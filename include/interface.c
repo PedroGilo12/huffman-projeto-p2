@@ -10,19 +10,20 @@
  */
 
 #include "interface.h"
+
 #include "locale.h"
 
 /**
- * @brief
- * @param input_file_name
- * @param output_file_name
- * @param gzip_flag
- * @return
+ * @brief Cria o nome do arquivo comprimido a partir do nome do arquivo original.
+ * @param input_file_name Nome do arquivo original.
+ * @param output_file_name Nome do arquivo comprimido.
+ * @param gzip_flag Flag para indicar qual deve ser a extensão final do arquivo comprimido.
+ * @return 0 em caso de sucesso ou inteiro negativo em caso de falha.
  */
-static int get_file_names(char* input_file_name, char* output_file_name, char gzip_flag);
+static int get_compress_file_names(char* input_file_name, char* output_file_name, char gzip_flag);
 
 /**
- * @brief
+ * @brief Interface por execu
  * @param input_file_name
  * @param output_file_name
  * @return
@@ -79,7 +80,7 @@ void main_interface(void)
         case 1:
 
             printf("Digite o caminho do arquivo que deseja compactar: ");
-            get_file_names(input_file_name, output_file_name, gzip_flag);
+            get_compress_file_names(input_file_name, output_file_name, gzip_flag);
 
             printf("Arquivo de entrada: %s\nArquivo de saida: %s\n", input_file_name,
                    output_file_name);
@@ -144,7 +145,7 @@ void main_interface(void)
     }
 }
 
-static int get_file_names(char* input_file_name, char* output_file_name, char gzip_flag)
+static int get_compress_file_names(char* input_file_name, char* output_file_name, char gzip_flag)
 {
     char* input = (char*) malloc(64 * sizeof(char));
 
@@ -242,7 +243,6 @@ static int extract_interface(char* input_file_name, char* output_file_name)
                  huffman_output->linkedList = create_tree_from_preorder(
                      header->preorder_tree, &index, &qtd_caracter_scape));
 
-    // TODO: Implementar função para executar isso ai.
     huffman_output->preorder =
         (unsigned char*) malloc(huffman_output->tree_size * sizeof(char));
     huffman_output->tree_size  = header->tree_size;
@@ -300,21 +300,21 @@ static int get_extracted_filename(char* input_file_name, char* output_file_name,
 
 static void logo_gzip(void)
 {
-    printf("#####################################################################\n");
-    printf("##                                                                 ##\n");
-    printf("##  _______  _______  ___   _______                                ##\n");
-    printf("## |       ||       ||   | |       |                               ##\n");
-    printf("## |    ___||____   ||   | |    _  |                               ##\n");
-    printf("## |   | __  ____|  ||   | |   |_| |                               ##\n");
-    printf("## |   ||  || ______||   | |    ___|                               ##\n");
-    printf("## |   |_| || |_____ |   | |   |                                   ##\n");
-    printf("## |_______||_______||___|_|___|______  __   __  _______  __    _  ##\n");
-    printf("## |  | |  ||  | |  ||       ||       ||  |_|  ||   _   ||  |  | | ##\n");
-    printf("## |  |_|  ||  | |  ||    ___||    ___||       ||  |_|  ||   |_| | ##\n");
-    printf("## |       ||  |_|  ||   |___ |   |___ |       ||       ||       | ##\n");
-    printf("## |       ||       ||    ___||    ___||       ||       ||  _    | ##\n");
-    printf("## |   _   ||       ||   |    |   |    | ||_|| ||   _   || | |   | ##\n");
-    printf("## |__| |__||_______||___|    |___|    |_|   |_||__| |__||_|  |__| ##\n");
-    printf("##                                                                 ##\n");
-    printf("#####################################################################\n");
+    printf("###########################################################################\n");
+    printf("##                                                                       ##\n");
+    printf("##  _______   _______   ___    _______                                   ##\n");
+    printf("## |       | |       | |   |  |       |                                  ##\n");
+    printf("## |    ___| |____   | |   |  |    _  |                                  ##\n");
+    printf("## |   | __   ____|  | |   |  |   |_| |                                  ##\n");
+    printf("## |   ||  | | ______| |   |  |    ___|                                  ##\n");
+    printf("## |   |_| | | |_____  |   |  |   |                                      ##\n");
+    printf("## |_______| |_______| |___|__|___|______   __   __   _______   __    _  ##\n");
+    printf("## |  | |  | |  | |  | |       | |       | |  |_|  | |   _   | |  |  | | ##\n");
+    printf("## |  |_|  | |  | |  | |    ___| |    ___| |       | |  |_|  | |   |_| | ##\n");
+    printf("## |       | |  |_|  | |   |___  |   |___  |       | |       | |       | ##\n");
+    printf("## |       | |       | |    ___| |    ___| |       | |       | |  _    | ##\n");
+    printf("## |   _   | |       | |   |     |   |     | ||_|| | |   _   | | | |   | ##\n");
+    printf("## |__| |__| |_______| |___|     |___|     |_|   |_| |__| |__| |_|  |__| ##\n");
+    printf("##                                                                       ##\n");
+    printf("###########################################################################\n");
 }

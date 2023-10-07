@@ -12,11 +12,11 @@
 #ifndef GZIP_V1_INTERFACE_H
 #define GZIP_V1_INTERFACE_H
 
-#include <common.h>
-#include <time.h>
-#include <input_process.h>
-#include <output_process.h>
+#include "common.h"
+#include "compress_process.h"
+#include "extract_process.h"
 #include <stdio.h>
+#include <time.h>
 
 #define N_ATTEMPTS_TO_OPEN_FILE 9
 

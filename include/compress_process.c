@@ -9,7 +9,7 @@
  *          Raniel Ferreira Athayde (rfa@ic.ufal.br)
  */
 
-#include "input_process.h"
+#include "compress_process.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +24,8 @@
  *
  * @return 0 em caso de sucesso ou inteiro positivo em caso de falha.
  */
-static int insert_header(const char *input_file_name, unsigned char *data, size_t size_data);
+static int insert_header(const char *input_file_name, unsigned char *data,
+                         size_t size_data);
 
 int process_input_file_as_byte_frequency(const char *file_name,
                                          linked_list_t **linked_list)
@@ -198,7 +199,8 @@ int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dicti
             (unsigned long *) malloc(2 * sizeof(unsigned long));
 
         /* Atribui valores do item. */
-        dictionary_item[0] = (unsigned long) (*linked_list)->data->byte;
+        dictionary_item[0] =
+            (unsigned long) ((byte_frequency_t *) (*linked_list)->data)->byte;
         dictionary_item[1] = binary_word;
 
         /* Inclui o item no dicionário. */
@@ -206,10 +208,12 @@ int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dicti
         dictionary_index++;
 
         /* Casos especiais: Adição do caracter de escape a string em pré ordem. */
-        if ((*linked_list)->data->byte == '*' || (*linked_list)->data->byte == '\\') {
+        if (((byte_frequency_t *) ((*linked_list)->data))->byte == '*'
+            || ((byte_frequency_t *) ((*linked_list)->data))->byte == '\\') {
             /* Adição do caractere de escape. */
             (*pre_order_tree)[pre_order_index - 1] = '\\';
-            (*pre_order_tree)[pre_order_index]     = (*linked_list)->data->byte;
+            (*pre_order_tree)[pre_order_index] =
+                ((byte_frequency_t *) ((*linked_list)->data))->byte;
 
             pre_order_index++;
         }
@@ -242,7 +246,7 @@ static unsigned char *make_header(huffman_tree_t *huffman_tree, unsigned int *si
 
     for (int x = 0; x < insert_size; x++) {
         /* Verifica se possui um caractere de escape e não contabiliza-o para gravação. */
-        if (huffman_tree->preorder[x] == '\\' && huffman_tree->preorder[x+1] != '\\') {
+        if (huffman_tree->preorder[x] == '\\' && huffman_tree->preorder[x + 1] != '\\') {
             insert_size += 1;
         }
 
@@ -264,11 +268,11 @@ static unsigned char *make_header(huffman_tree_t *huffman_tree, unsigned int *si
     printf("\n");
 
     for (int x = 0; x < insert_size; x++) {
-        if(header[2+x] < 10) {
+        if (header[2 + x] < 10) {
             printf("0");
         }
 
-        printf(  "%x ", header[2 + x]);
+        printf("%x ", header[2 + x]);
     }
 #endif
 
@@ -277,7 +281,8 @@ static unsigned char *make_header(huffman_tree_t *huffman_tree, unsigned int *si
     return header;
 }
 
-static int insert_header(const char *input_file_name, unsigned char *data, size_t size_data)
+static int insert_header(const char *input_file_name, unsigned char *data,
+                         size_t size_data)
 {
     /* Definição das variáveis. */
     FILE *input_file;
@@ -366,6 +371,11 @@ int compress_file(const char *input_file_name, const char *output_file_name,
         /* Alocação de memória para armazenar provisoriamente o byte lido no arquivo */
         unsigned char *input_byte = (unsigned char *) malloc(sizeof(unsigned char));
 
+        /* input_byte -> buffer de saída.
+         * 1 -> Tamanho do bloco.
+         * 1 -> Quantidade de blocos.
+         * input_file -> Arquivo de entrada.
+         * */
         if (fread(input_byte, 1, 1, input_file) != 1) {
             /* Libera a memória reservada para byte antes de sair do loop */
             free(input_byte);
@@ -394,18 +404,13 @@ int compress_file(const char *input_file_name, const char *output_file_name,
                      *
                      * shift_for_cache -> quantidade de bits deslocados para o cache.
                      */
-                    unsigned int shift_for_output =
-                        (depth - (shift_output_cache + depth - 8));
                     unsigned int shift_for_cache = ((shift_output_cache + depth) - 8);
+
+                    unsigned int shift_for_output = (depth - shift_for_cache);
 
                     /* Desloca os bits para a saída. */
                     output_byte = output_byte << shift_for_output;
-                    output_byte = output_byte & 0xFF;
                     output_byte = output_byte | (target_eq_byte >> shift_for_cache);
-
-                    /* Desloca os bits para o cache. */
-                    cache_buffer = cache_buffer << shift_for_cache;
-                    cache_buffer = cache_buffer | (target_eq_byte >> shift_for_cache);
 
                     /* Escreve o byte no arquivo. */
                     size_t write =

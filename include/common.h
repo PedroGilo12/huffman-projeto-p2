@@ -23,8 +23,12 @@
  */
 #define DEBUG_MODE 0
 
+/**
+ * @brief
+ */
 #define TRACE_MODE 1
 
+#if TRACE_MODE
 #define ELAPSED_TIME(name, funcao)                                        \
     {                                                                     \
         clock_t begin;                                                    \
@@ -36,6 +40,12 @@
         elapsed = ((double) (end - begin));                               \
         printf("%s demorou %.0fms para ser concluido.\n", name, elapsed); \
     }
+#else
+#define ELAPSED_TIME(name, funcao) \
+    {                              \
+        funcao;                    \
+    }
+#endif
 
 /**
  * @brief Enumeração para sinais de erro.
@@ -60,7 +70,7 @@ typedef struct byte_frequency {
  * @brief Estrutura genérica para uma lista encadeada com "huffman nodes".
  */
 typedef struct linked_list {
-    byte_frequency_t *data;    /**< Endereço do dado armazenado no nó */
+    void *data;    /**< Endereço do dado armazenado no nó */
     struct linked_list *next;  /**< Endereço do próximo nó*/
     struct linked_list *right; /**< Endereço do filho à direita do nó */
     struct linked_list *left;  /**< Endereço do filho à esquerda do nó */
