@@ -1,7 +1,13 @@
+<p align="center">
+  <img src="imagens/logo-ic.png" alt="Descrição da imagem">
+</p>
+
+
 # Compactador de arquivos GZIP
 
 Este projeto tem como objetivo implementar um compactador de arquivos utilizando o algoritmo de Huffman. O algoritmo de Huffman é um método de compressão sem perdas que utiliza a frequência de ocorrência dos caracteres em um arquivo para criar códigos de tamanho variável. Isso permite que caracteres mais frequentes sejam representados por códigos mais curtos, resultando em uma redução no tamanho do arquivo.
 
+---
 ## Índice
 
 - [Visão Geral](#visão-geral)
@@ -9,34 +15,61 @@ Este projeto tem como objetivo implementar um compactador de arquivos utilizando
 - [Instalação](#instalação)
 - [Uso](#uso)
 - [Contribuição](#contribuição)
-- [Licença](#licença)
-
+---
 ## Visão Geral
 
-Uma descrição mais detalhada do que o seu projeto faz, qual é o seu propósito e por que alguém poderia estar interessado nele.
-
+O algoritmo de Huffman é um método de compressão de dados que visa reduzir o tamanho de um arquivo ou mensagem, tornando-o mais eficiente em termos de armazenamento ou transmissão. A ideia básica por trás do algoritmo de Huffman é atribuir códigos binários mais curtos às palavras, letras ou símbolos mais frequentes em um conjunto de dados, e códigos binários mais longos às palavras menos frequentes. Isso aproveita a redundância nos dados, economizando espaço para representar informações comuns e usando mais bits para informações menos comuns.
 ## Requisitos
 
-Liste os requisitos necessários para executar ou contribuir para o projeto. Isso pode incluir dependências de software, versões específicas de linguagens de programação, ferramentas ou bibliotecas.
-
+- GCC
+- MakeFile
+- [CUnit](#instalação-rápida-cunit) (Somente para os testes).
+- Também é recomendado estudos dos métodos de compressão, descompressão e o conhecimento para a melhor entendimento da árvore de Huffman.
 ## Instalação
 
-Forneça instruções passo a passo sobre como instalar o seu projeto. Isso pode incluir comandos de linha de terminal, configurações específicas ou qualquer outra coisa necessária para fazer o projeto funcionar.
+### Instalação rápida CUnit
+1. No Windows, abra o terminal do MSYS2 e digite o seguinte comando:
+    ```bash
+    $ pacman -S mingw-w64-x86_64-cunit
+    ```
+### Compilação e execução
+#### GZIP Huffman:
 
-## Uso
+```bash
+$ make
+$ gzip_v1
+```
+#### CUnit testes:
+```bash
+$ cd CUnit-tests
+$ make
+$ tests-huffman
+```
+#### Contagem e plotagem:
+```bash
+$ cd contagem-e-plotagem
+$ make
+$ plot
+```
+## Uso GZIP Huffman
+Ao iniciar o uso da aplicação, um menu vai exibir 4 opções, sendo elas:
 
-Explique como usar o seu projeto. Isso pode envolver exemplos de código, capturas de tela, comandos de terminal e demonstrações visuais para mostrar como o projeto deve ser usado.
+1 - Compactar arquivo: Ao selecionar, o programa vai requisitar o caminho do arquivo e, com base no formato escolhido ele vai gerar o arquivo compactado.
 
+2 - Descompactar arquivo: Ao selecionar, o programa vai requisitar a extensão final do arquivo para realizar o processo de descompactação.
+
+3 - Alternar extensão (x).gip ( ).huff: Comando utilizado para escolher qual a extensão de arquivo você deseja utilizar.
+
+9 - Sair: Comando para encerrar o programa.
 ## Contribuição
 
-Explique como outras pessoas podem contribuir para o seu projeto. Isso pode incluir instruções sobre como reportar problemas, sugerir melhorias e enviar solicitações de pull no GitHub.
+* Caio Oliveira França dos Anjos [cofa@ic.ufal.br](cofa@ic.ufal.br)
+* Pedro Henrique Balbino Rocha [phbr@ic.ufal.br](phbr@ic.ufal.br)
+* Pedro Henrique Vieira Giló [phvg@ic.ufal.br](phvg@ic.ufal.br)
+* Raniel Ferreira Athayde [rfa@ic.ufal.br](rfa@ic.ufal.br)
 
-## Licença
-
-Indique a licença sob a qual o seu projeto é disponibilizado. Por exemplo:
-
-Este projeto é licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Para qualquer contribuição, correção ou sugestão basta entrar em contato pelo GitHub ou pelo e-mail dos responsáveis pelo projeto.
 
 ---
 
-Coloque quaisquer informações adicionais ou agradecimentos finais aqui.
+Sociedade™. 
