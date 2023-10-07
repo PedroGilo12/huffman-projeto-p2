@@ -15,46 +15,49 @@
 
 /**
  * @brief Cria o nome do arquivo comprimido a partir do nome do arquivo original.
- * @param input_file_name Nome do arquivo original.
- * @param output_file_name Nome do arquivo comprimido.
- * @param gzip_flag Flag para indicar qual deve ser a extensão final do arquivo comprimido.
+ * @param input_file_name [in] Nome do arquivo original.
+ * @param output_file_name [out] Nome do arquivo comprimido.
+ * @param gzip_flag Flag para indicar qual deve ser a extensão final do arquivo
+ * comprimido.
  * @return 0 em caso de sucesso ou inteiro negativo em caso de falha.
  */
-static int get_compress_file_names(char* input_file_name, char* output_file_name, char gzip_flag);
+static int get_compress_file_names(char* input_file_name, char* output_file_name,
+                                   char gzip_flag);
 
 /**
- * @brief Interface por execu
- * @param input_file_name
- * @param output_file_name
- * @return
+ * @brief Interface para executar a operação de compressão.
+ * @param input_file_name [in] Nome do arquivo que será comprimido.
+ * @param output_file_name [in] Nome do arquivo comprimido.
+ * @return 0 em caso de sucesso ou inteiro positivo em caso de falha.
  */
 static int compress_interface(char* input_file_name, char* output_file_name);
 
 /**
- * @brief
- * @param input_file_name
- * @param output_file_name
- * @return
+ * @brief Interface para executar a operação de extração.
+ * @param input_file_name [in] Nome do arquivo comprimido.
+ * @param output_file_name [in] Nome do arquivo descomprimido.
+ * @return 0 em caso de sucesso ou inteiro positivo em caso de falha.
  */
 static int extract_interface(char* input_file_name, char* output_file_name);
 
 /**
- * @brief
+ * @brief Escreve no terminal a logo do programa.
  */
 static void logo_gzip(void);
 
 /**
- * @brief
- * @param input_file_name
- * @param output_file_name
- * @param ext
- * @return
+ * @brief Recupera o nome do arquivo descomprimido a partir do arquivo comprimido.
+ * @param input_file_name [in] Nome do arquivo comprimido.
+ * @param output_file_name [out] Nome do arquivo descomprimido.
+ * @param ext Extensão do arquivo descomprimido.
+ * @return 0 em caso de sucesso ou inteiro positivo em caso de falha.
  */
 static int get_extracted_filename(char* input_file_name, char* output_file_name,
                                   char* ext);
 
 void main_interface(void)
 {
+    /* Configura o terminal para suportar acentuação. */
     setlocale(LC_ALL, "Portuguese_Brazil.1252");
 
     char input_file_name[64];
@@ -64,6 +67,8 @@ void main_interface(void)
     char gzip_flag    = 'x';
     char huffman_flag = ' ';
     bool execute      = 1;
+
+    int err;
 
     logo_gzip();
     while (execute) {
@@ -78,9 +83,15 @@ void main_interface(void)
 
         switch (response) {
         case 1:
-
             printf("Digite o caminho do arquivo que deseja compactar: ");
-            get_compress_file_names(input_file_name, output_file_name, gzip_flag);
+            err = get_compress_file_names(input_file_name, output_file_name, gzip_flag);
+
+            if(err != ERR_NONE) {
+                printf("\033[2J\033[H");
+                logo_gzip();
+                wprintf(L"(Arquivo não encontrado)\n");
+                continue;
+            }
 
             printf("Arquivo de entrada: %s\nArquivo de saida: %s\n", input_file_name,
                    output_file_name);
@@ -98,9 +109,18 @@ void main_interface(void)
 
             break;
         case 2:
+            while (1) {
+                wprintf(L"Digite a extensão final do arquivo descompactado: ");
+                scanf("%s", ext);
 
-            wprintf(L"Digite a extensão final do arquivo descompactado: ");
-            scanf("%s", ext);
+                if (ext[0] == '.') {
+                    break;
+                }
+                wprintf(L"Extensão inválida, lembre-se de incluir o '.' no começo do "
+                        L"nome da extensão.\n");
+                ext[0] = '\0';
+            }
+
             wprintf(L"Digite o caminho do arquivo que deseja extrair: ");
             get_extracted_filename(input_file_name, output_file_name, ext);
 
@@ -145,7 +165,8 @@ void main_interface(void)
     }
 }
 
-static int get_compress_file_names(char* input_file_name, char* output_file_name, char gzip_flag)
+static int get_compress_file_names(char* input_file_name, char* output_file_name,
+                                   char gzip_flag)
 {
     char* input = (char*) malloc(64 * sizeof(char));
 
@@ -155,6 +176,14 @@ static int get_compress_file_names(char* input_file_name, char* output_file_name
 
     scanf("%s", input_file_name);
     strcpy(input, input_file_name);
+
+    FILE * input_file = fopen(input_file_name, "r");
+
+    if(input_file == NULL) {
+        return ERR_FILE_NOT_FOUND;
+    }
+
+    fclose(input_file);
 
     for (int index = 0; index < strlen(input_file_name); index++) {
         if (input_file_name[index] == '.') {
@@ -185,6 +214,10 @@ static int get_compress_file_names(char* input_file_name, char* output_file_name
     }
 
     FILE* output_file = fopen(input_file_name, "w");
+
+    if(output_file == NULL) {
+        return ERR_FILE_WRITE;
+    }
 
     strcpy(output_file_name, input_file_name);
     strcpy(input_file_name, input);
@@ -300,21 +333,38 @@ static int get_extracted_filename(char* input_file_name, char* output_file_name,
 
 static void logo_gzip(void)
 {
-    printf("###########################################################################\n");
-    printf("##                                                                       ##\n");
-    printf("##  _______   _______   ___    _______                                   ##\n");
-    printf("## |       | |       | |   |  |       |                                  ##\n");
-    printf("## |    ___| |____   | |   |  |    _  |                                  ##\n");
-    printf("## |   | __   ____|  | |   |  |   |_| |                                  ##\n");
-    printf("## |   ||  | | ______| |   |  |    ___|                                  ##\n");
-    printf("## |   |_| | | |_____  |   |  |   |                                      ##\n");
-    printf("## |_______| |_______| |___|__|___|______   __   __   _______   __    _  ##\n");
-    printf("## |  | |  | |  | |  | |       | |       | |  |_|  | |   _   | |  |  | | ##\n");
-    printf("## |  |_|  | |  | |  | |    ___| |    ___| |       | |  |_|  | |   |_| | ##\n");
-    printf("## |       | |  |_|  | |   |___  |   |___  |       | |       | |       | ##\n");
-    printf("## |       | |       | |    ___| |    ___| |       | |       | |  _    | ##\n");
-    printf("## |   _   | |       | |   |     |   |     | ||_|| | |   _   | | | |   | ##\n");
-    printf("## |__| |__| |_______| |___|     |___|     |_|   |_| |__| |__| |_|  |__| ##\n");
-    printf("##                                                                       ##\n");
-    printf("###########################################################################\n");
+    printf(
+        "###########################################################################\n");
+    printf(
+        "##                                                                       ##\n");
+    printf(
+        "##  _______   _______   ___    _______                                   ##\n");
+    printf(
+        "## |       | |       | |   |  |       |                                  ##\n");
+    printf(
+        "## |    ___| |____   | |   |  |    _  |                                  ##\n");
+    printf(
+        "## |   | __   ____|  | |   |  |   |_| |                                  ##\n");
+    printf(
+        "## |   ||  | | ______| |   |  |    ___|                                  ##\n");
+    printf(
+        "## |   |_| | | |_____  |   |  |   |                                      ##\n");
+    printf(
+        "## |_______| |_______| |___|__|___|______   __   __   _______   __    _  ##\n");
+    printf(
+        "## |  | |  | |  | |  | |       | |       | |  |_|  | |   _   | |  |  | | ##\n");
+    printf(
+        "## |  |_|  | |  | |  | |    ___| |    ___| |       | |  |_|  | |   |_| | ##\n");
+    printf(
+        "## |       | |  |_|  | |   |___  |   |___  |       | |       | |       | ##\n");
+    printf(
+        "## |       | |       | |    ___| |    ___| |       | |       | |  _    | ##\n");
+    printf(
+        "## |   _   | |       | |   |     |   |     | ||_|| | |   _   | | | |   | ##\n");
+    printf(
+        "## |__| |__| |_______| |___|     |___|     |_|   |_| |__| |__| |_|  |__| ##\n");
+    printf(
+        "##                                                                       ##\n");
+    printf(
+        "###########################################################################\n");
 }

@@ -1,5 +1,5 @@
 # Nome do seu executável
-TARGET = meu_programa
+TARGET = GZIP_V1
 
 # Compilador
 CC = gcc

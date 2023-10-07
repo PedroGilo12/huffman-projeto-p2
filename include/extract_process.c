@@ -97,7 +97,7 @@ int extract_file(unsigned char *compressed_file_name, unsigned char *extracted_f
     unsigned int shift_bit   = 0; /* Bit atual lido no arquivo. */
     unsigned long end_file   = 0; /* Posição inicial do lixo. */
 
-    /* Conseguir a posição do ínicio do lixo. */
+    /* Conseguir a posição do byte que contém o lixo. */
     fseek(compressed_file, 0, SEEK_END);
     end_file = ftell(compressed_file);
 
@@ -139,7 +139,9 @@ int extract_file(unsigned char *compressed_file_name, unsigned char *extracted_f
                 current = huffman_tree->linkedList;
 
                 /* Se chegar no final do arquivo pare o laço. */
-                if (current_p_file >= end_file || current == NULL) {
+                if ((current_p_file >= end_file
+                     && shift_cache <= huffman_tree->trash_size)
+                    || current == NULL) {
                     break;
                 }
             }

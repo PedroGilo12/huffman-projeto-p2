@@ -10,12 +10,12 @@ linked_list_t *linked_list;
 
 int inicializar_suite(void)
 {
-    return 0;  // sucesso
+    return 0; 
 }
 
 int clear_suite(void)
 {
-    return 0;  // sucesso
+    return 0; 
 }
 
 void create_empty_list(void)
@@ -68,12 +68,6 @@ void insert_ordered(void)
     }
 }
 
-void make_huffman_tree_(void)
-{
-    //huffman_tree_t * huffman_tree = make_huffman_tree(&linked_list);
-    //CU_ASSERT_PTR_NOT_NULL(linked_list);
-}
-
 int main()
 {
     // Inicializa o registro de suíte de testes do CUnit
@@ -81,10 +75,9 @@ int main()
         return CU_get_error();
     }
 
-    // Adiciona uma suíte de testes ao registro
     CU_pSuite common_functions =
         CU_add_suite("Test common functions", inicializar_suite, clear_suite);
-    // Adiciona os testes à suíte
+
     CU_ADD_TEST_PRINT_FUNC(common_functions, create_new_node);
     CU_ADD_TEST_PRINT_FUNC(common_functions, create_empty_list);
     CU_ADD_TEST_PRINT_FUNC(common_functions, insert_byte);
