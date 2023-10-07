@@ -2,6 +2,7 @@
 
 Este projeto tem como objetivo implementar um compactador de arquivos utilizando o algoritmo de Huffman. O algoritmo de Huffman é um método de compressão sem perdas que utiliza a frequência de ocorrência dos caracteres em um arquivo para criar códigos de tamanho variável. Isso permite que caracteres mais frequentes sejam representados por códigos mais curtos, resultando em uma redução no tamanho do arquivo.
 
+---
 ## Índice
 
 - [Visão Geral](#visão-geral)
@@ -9,34 +10,31 @@ Este projeto tem como objetivo implementar um compactador de arquivos utilizando
 - [Instalação](#instalação)
 - [Uso](#uso)
 - [Contribuição](#contribuição)
-- [Licença](#licença)
-
+---
 ## Visão Geral
 
-Uma descrição mais detalhada do que o seu projeto faz, qual é o seu propósito e por que alguém poderia estar interessado nele.
-
+O algoritmo de Huffman é um método de compressão de dados que visa reduzir o tamanho de um arquivo ou mensagem, tornando-o mais eficiente em termos de armazenamento ou transmissão. A ideia básica por trás do algoritmo de Huffman é atribuir códigos binários mais curtos às palavras, letras ou símbolos mais frequentes em um conjunto de dados, e códigos binários mais longos às palavras menos frequentes. Isso aproveita a redundância nos dados, economizando espaço para representar informações comuns e usando mais bits para informações menos comuns.
 ## Requisitos
 
-Liste os requisitos necessários para executar ou contribuir para o projeto. Isso pode incluir dependências de software, versões específicas de linguagens de programação, ferramentas ou bibliotecas.
-
+A utilização de bibliotecas com as principais funções necessárias para a organização e exibição do código de maneira eficiente e didática. Estudo dos métodos de compressão, descompressão e o conhecimento para a implementação da árvore de Huffman.
 ## Instalação
 
-Forneça instruções passo a passo sobre como instalar o seu projeto. Isso pode incluir comandos de linha de terminal, configurações específicas ou qualquer outra coisa necessária para fazer o projeto funcionar.
-
+Todos os arquivos estão disponíveis na pasta, incluso o executável, sendo necessário somente o Download e a execução do arquivo.
 ## Uso
 
-Explique como usar o seu projeto. Isso pode envolver exemplos de código, capturas de tela, comandos de terminal e demonstrações visuais para mostrar como o projeto deve ser usado.
+Ao iniciar o uso da aplicação, um menu vai exibir 4 opções, sendo elas:
 
+1 - Compactar arquivo: Ao selecionar, o programa vai requisitar o caminho do arquivo e, com base no formato escolhido ele vai gerar o arquivo compactado.
+
+2 - Descompactar arquivo: Ao selecionar, o programa vai requisitar a extensão final do arquivo para realizar o processo de descompactação.
+
+3 - Alternar extensão (x).gip ( ).huff: Comando utilizado para escolher qual a extensão de arquivo você deseja utilizar.
+
+9 - Sair: Comando para encerrar o programa.
 ## Contribuição
 
-Explique como outras pessoas podem contribuir para o seu projeto. Isso pode incluir instruções sobre como reportar problemas, sugerir melhorias e enviar solicitações de pull no GitHub.
-
-## Licença
-
-Indique a licença sob a qual o seu projeto é disponibilizado. Por exemplo:
-
-Este projeto é licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Para qualquer contribuição, correção ou contato basta entrar em contato pelo GitHub ou pelo e-mail dos responsáveis pelo projeto.
 
 ---
 
-Coloque quaisquer informações adicionais ou agradecimentos finais aqui.
+Sociedade™. 
