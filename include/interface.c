@@ -243,6 +243,9 @@ static int compress_interface(char* input_file_name, char* output_file_name)
     /* Monta a árvore de huffman a partir da lista anterior. */
     huffman_tree_t* huffman_tree = make_huffman_tree(&linked_list);
 
+    /* Zera as váriaveis estaticas. */
+    make_preorder_dictionary(STATIC_RESET);
+
     /* Cria o dicionário para a árvore. */
     ELAPSED_TIME("[MAKE_PREORDER]", make_preorder_dictionary(&huffman_tree->linkedList,
                                                              &huffman_tree->dictionary,

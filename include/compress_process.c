@@ -80,7 +80,6 @@ int process_input_file_as_byte_frequency(const char *file_name,
     return 0;
 }
 
-// TODO: Criar ponteiro para o erro
 huffman_tree_t *make_huffman_tree(linked_list_t **linked_list)
 {
     /* Aloca memória para a árvore de Huffman. */
@@ -144,20 +143,20 @@ huffman_tree_t *make_huffman_tree(linked_list_t **linked_list)
     huffman_tree->trash_size = 0;
     huffman_tree->dictionary = dictionary;
     huffman_tree->preorder =
-        (unsigned char *) malloc((2 * huffman_tree->tree_size) * sizeof(unsigned char));
+        (unsigned char *) malloc((2 + huffman_tree->tree_size) * sizeof(unsigned char));
 
     return huffman_tree;
 }
 
 int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dictionary,
-                             unsigned char **pre_order_tree, int binary_word)
+                             unsigned char **pre_order_tree, int binary_path)
 {
     /* Variáveis estáticas para contabilizar o índice do dicionário e da string em pré
      * ordem. */
     static int dictionary_index = 0;
     static int pre_order_index  = 0;
 
-    if (binary_word == -1) {
+    if (binary_path == -1) {
         dictionary_index = 0;
         pre_order_index  = 0;
         return 0;
@@ -180,7 +179,7 @@ int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dicti
         /* Note que "binary_word << 1 | 0":
          * adiciona 0 ao caminho até a folha.*/
         make_preorder_dictionary(&(*linked_list)->left, dictionary, pre_order_tree,
-                                 binary_word << 1 | 0);
+                                 binary_path << 1 | 0);
     }
 
     /* Se não for possível ir para esquerda, vá para a direita. */
@@ -188,7 +187,7 @@ int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dicti
         /* Note que "binary_word << 1 | 1":
          * adiciona 1 ao caminho até a folha.*/
         make_preorder_dictionary(&(*linked_list)->right, dictionary, pre_order_tree,
-                                 binary_word << 1 | 1);
+                                 binary_path << 1 | 1);
     }
 
     /* Se ambos os filhos, da esquerda e da direita foram NULL, então chegou em uma folha,
@@ -201,7 +200,7 @@ int make_preorder_dictionary(linked_list_t **linked_list, unsigned long ***dicti
         /* Atribui valores do item. */
         dictionary_item[0] =
             (unsigned long) ((byte_frequency_t *) (*linked_list)->data)->byte;
-        dictionary_item[1] = binary_word;
+        dictionary_item[1] = binary_path;
 
         /* Inclui o item no dicionário. */
         (*dictionary)[dictionary_index] = dictionary_item;
@@ -243,7 +242,6 @@ static unsigned char *make_header(huffman_tree_t *huffman_tree, unsigned int *si
 
     /* Insere a árvore em pré ordem no cabeçalho. */
     unsigned long insert_size = huffman_tree->tree_size;
-
     for (int x = 0; x < insert_size; x++) {
         /* Verifica se possui um caractere de escape e não contabiliza-o para gravação. */
         if (huffman_tree->preorder[x] == '\\' && huffman_tree->preorder[x + 1] != '\\') {
@@ -455,7 +453,6 @@ int compress_file(const char *input_file_name, const char *output_file_name,
     if (shift_output_cache) {
         trash_size  = 8 - shift_output_cache;
         output_byte = output_byte << trash_size;
-        output_byte = output_byte | (0xFF >> shift_output_cache);
 
         /* Escreve o byte no arquivo. */
         size_t write = fwrite(&output_byte, sizeof(output_byte), 1, output_file);

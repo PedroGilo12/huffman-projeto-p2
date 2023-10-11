@@ -37,7 +37,7 @@ int get_header_from_file(unsigned char *compressed_file_name, file_header_t **fi
      * A operação & 0xFF serve para zerar todos os outros bits que não façam parte do
      * primeiro byte do unsigned char
      */
-    trash_size = trash_size | ((full_sizes[0] & 0xFF) >> 5);
+    trash_size = trash_size | ((full_sizes[0]) >> 5);
 
     /* Recupera o tamanho da árvore. */
     tree_size = (tree_size | full_sizes[0]); /* Pega os valores no primeiro byte. */

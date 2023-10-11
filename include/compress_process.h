@@ -14,7 +14,7 @@
 #include "common.h"
 
 /**
- * @brief Macro para resetar as váriaveis estáticas de uma função.
+ * @brief Macro para resetar as váriaveis estáticas da função make_preorder_dictionary.
  */
 #define STATIC_RESET NULL, NULL, NULL, -1
 
