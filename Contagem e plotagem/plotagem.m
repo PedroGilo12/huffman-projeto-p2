@@ -16,6 +16,7 @@ xlabel('Tamanho de Entrada (n)');
 ylabel('Comparações');
 grid on;
 
+
 % Cria o gráfico de dispersão (apenas pontos) para a Árvore Binária Degenerada (pontos menores)
 subplot(1, 2, 2);
 scatter(degenerate_n, degenerate_comparisons, 10, 'filled'); % Tamanho 10
